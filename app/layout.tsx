@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Noto_Serif_JP } from "next/font/google";
+import { Noto_Sans_JP, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const geist = Geist({ variable: "--font-sans", subsets: ["latin"] });
-const noto = Noto_Serif_JP({ variable: "--font-jp", subsets: ["latin"] });
+const nunito = Nunito_Sans({ variable: "--font-sans", subsets: ["latin"] });
+const noto = Noto_Sans_JP({ variable: "--font-jp", subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "KanaNihon — Belajar Bahasa Jepang Lengkap Gratis",
@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="id"><body className={`${geist.variable} ${noto.variable}`}>{children}</body></html>;
+  return <html lang="id"><body className={`${nunito.variable} ${noto.variable}`}>{children}</body></html>;
 }

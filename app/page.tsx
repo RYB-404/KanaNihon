@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CONVERSATIONS, GRAMMAR, KANJI, LISTENING, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
+import { CONVERSATIONS, GRAMMAR, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kosakata" | "tatabahasa" | "kanji" | "mendengar" | "percakapan";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi";
 
 const HIRAGANA: Kana[] = [
   ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
@@ -80,8 +80,13 @@ export default function Home() {
   const [listeningIndex, setListeningIndex] = useState(0);
   const [showListeningText, setShowListeningText] = useState(false);
   const [conversationIndex, setConversationIndex] = useState(0);
+  const [particleIndex, setParticleIndex] = useState(0);
+  const [particleAnswer, setParticleAnswer] = useState<string | null>(null);
+  const [practicalIndex, setPracticalIndex] = useState(0);
+  const [audioStatus, setAudioStatus] = useState<"ready"|"playing"|"error">("ready");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const kana = script === "hiragana" ? HIRAGANA : KATAKANA;
   const active = kana[selected] ?? kana[0];
   const scriptLearned = learned.filter((x) => kana.some((k) => k.char === x)).length;
@@ -114,13 +119,39 @@ export default function Home() {
   const example = EXAMPLES[active.romaji];
   const strokeAsset = `/strokes/${active.char.codePointAt(0)!.toString(16).padStart(5, "0")}.svg`;
 
-  function speakJapanese(text: string, rate = .72) {
-    if (!("speechSynthesis" in window)) return;
+  function audioId(text: string) {
+    let hash = 2166136261;
+    for (let index = 0; index < text.length; index++) {
+      hash ^= text.charCodeAt(index);
+      hash = Math.imul(hash, 16777619);
+    }
+    return (hash >>> 0).toString(16);
+  }
+
+  function speakWithSystemVoice(text: string, rate: number) {
+    if (!("speechSynthesis" in window)) { setAudioStatus("error"); return; }
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "ja-JP";
     utterance.rate = rate;
+    const japaneseVoice = speechSynthesis.getVoices().find((voice) => voice.lang.toLowerCase().startsWith("ja"));
+    if (japaneseVoice) utterance.voice = japaneseVoice;
+    utterance.onstart = () => setAudioStatus("playing");
+    utterance.onend = () => setAudioStatus("ready");
+    utterance.onerror = () => setAudioStatus("error");
     speechSynthesis.speak(utterance);
+  }
+
+  function speakJapanese(text: string, rate = .72) {
+    const audio = audioRef.current;
+    if (!audio) { speakWithSystemVoice(text, rate); return; }
+    audio.pause();
+    audio.src = `/audio/${audioId(text)}.mp3`;
+    audio.playbackRate = Math.max(.7, Math.min(1.2, rate / .76));
+    audio.onplay = () => setAudioStatus("playing");
+    audio.onended = () => setAudioStatus("ready");
+    audio.onerror = () => speakWithSystemVoice(text, rate);
+    audio.play().catch(() => speakWithSystemVoice(text, rate));
   }
 
   function speak(item = active) { speakJapanese(item.char); }
@@ -218,10 +249,14 @@ export default function Home() {
   const activeKanji = KANJI[kanjiIndex];
   const activeListening = LISTENING[listeningIndex];
   const activeConversation = CONVERSATIONS[conversationIndex];
+  const activeParticle = PARTICLES[particleIndex];
+  const activePractical = PRACTICAL_LESSONS[practicalIndex];
+  const particleQuestion = activeParticle.uses[0].example.replace(activeParticle.char,"＿＿");
+  const particleChoices = [activeParticle.char, PARTICLES[(particleIndex+3)%PARTICLES.length].char, PARTICLES[(particleIndex+7)%PARTICLES.length].char, PARTICLES[(particleIndex+11)%PARTICLES.length].char].sort();
   const learningPoints = learned.length + learnedWords.length + completed.length;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
-    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kosakata:"Kosakata", tatabahasa:"Tata bahasa", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan"
+    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kosakata:"Kosakata", tatabahasa:"Tata bahasa", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan", situasi:"Situasi nyata"
   };
 
   return (
@@ -234,7 +269,7 @@ export default function Home() {
         <nav aria-label="Navigasi utama">
           <button className={view === "kurikulum" ? "active" : ""} onClick={() => setView("kurikulum")}>Jalur</button>
           <button className={view === "belajar" || view === "latihan" ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
-          <button className={["kosakata","tatabahasa","kanji"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>Materi</button>
+          <button className={["kosakata","tatabahasa","partikel","kanji","situasi"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>Materi</button>
         </nav>
         <div className="streak" title="Rangkaian belajar"><span>火</span><strong>{streak}</strong> hari</div>
       </header>
@@ -256,9 +291,11 @@ export default function Home() {
             <button className={view === "belajar" || view === "latihan" ? "selected" : ""} onClick={() => setView("belajar")}><span>あ</span><i>Kana & menulis</i></button>
             <button className={view === "kosakata" ? "selected" : ""} onClick={() => setView("kosakata")}><span>言</span><i>Kosakata</i></button>
             <button className={view === "tatabahasa" ? "selected" : ""} onClick={() => setView("tatabahasa")}><span>文</span><i>Tata bahasa</i></button>
+            <button className={view === "partikel" ? "selected" : ""} onClick={() => setView("partikel")}><span>助</span><i>Partikel</i></button>
             <button className={view === "kanji" ? "selected" : ""} onClick={() => setView("kanji")}><span>字</span><i>Kanji</i></button>
             <button className={view === "mendengar" ? "selected" : ""} onClick={() => setView("mendengar")}><span>聴</span><i>Mendengar</i></button>
             <button className={view === "percakapan" ? "selected" : ""} onClick={() => setView("percakapan")}><span>話</span><i>Percakapan</i></button>
+            <button className={view === "situasi" ? "selected" : ""} onClick={() => setView("situasi")}><span>旅</span><i>Situasi nyata</i></button>
           </div>
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
             <button className={script === "hiragana" ? "selected" : ""} onClick={() => switchScript("hiragana")}><span>あ</span> Hiragana</button>
@@ -270,6 +307,7 @@ export default function Home() {
             <small>{learningPoints} aktivitas diselesaikan</small>
           </div>
           <button className="quiz-cta" onClick={startQuiz}><span>Review kana cepat</span><b>→</b></button>
+          <button className={`audio-check ${audioStatus}`} onClick={() => speakJapanese("こんにちは。日本語の勉強を始めましょう。",.76)}><span>{audioStatus === "playing" ? "♪" : audioStatus === "error" ? "!" : "▶"}</span><i>{audioStatus === "playing" ? "Suara sedang diputar" : audioStatus === "error" ? "Suara tidak tersedia" : "Tes suara Jepang"}</i></button>
           <p className="free-note">✓ Gratis · Tanpa akun · Progres tersimpan</p>
         </aside>
 
@@ -332,6 +370,21 @@ export default function Home() {
             </div>
           </div>}
 
+          {view === "partikel" && <div className="particle-view">
+            <div className="section-title"><div><p>PANDUAN PARTIKEL</p><h2>Pahami fungsi, bukan hafalan</h2></div><span>Lihat hubungan kata, konteks, dan perbedaannya.</span></div>
+            <div className="particle-intro"><div><span>助詞</span><p><b>Partikel adalah penunjuk hubungan.</b> Partikel ditempatkan setelah kata untuk menjelaskan perannya: topik, pelaku, objek, tujuan, lokasi, teman, batas, dan nuansa pembicara.</p></div><div><b>{completed.filter((id)=>id.startsWith("particle-")).length}/{PARTICLES.length}</b><span>partikel dipahami</span></div></div>
+            <div className="particle-layout">
+              <div className="particle-list">{PARTICLES.map((particle,index)=><button key={particle.id} className={`${particleIndex===index?"selected":""} ${completed.includes(`particle-${particle.id}`)?"learned":""}`} onClick={()=>{setParticleIndex(index);setParticleAnswer(null)}}><b>{particle.char}</b><span>{particle.core}</span><i>{particle.level}</i></button>)}</div>
+              <article className="particle-detail">
+                <div className="particle-hero"><div className="particle-char">{activeParticle.char}</div><div><span className="grammar-badge">{activeParticle.level} · dibaca {activeParticle.name}</span><h2>{activeParticle.core}</h2><p>{activeParticle.summary}</p></div></div>
+                <div className="particle-uses"><h3>Kapan digunakan?</h3>{activeParticle.uses.map((use,index)=><div className="particle-use" key={use.label}><span>{index+1}</span><div><small>{use.label}</small><code>{use.pattern}</code><button onClick={()=>speakJapanese(use.example)} aria-label={`Dengarkan ${use.example}`}>♪</button><b>{use.example}</b><em>{use.romaji}</em><p>{use.meaning}</p>{use.note&&<div className="use-note">{use.note}</div>}</div></div>)}</div>
+                {activeParticle.contrast&&<div className="contrast-box"><span>BEDAKAN</span><p>{activeParticle.contrast}</p></div>}
+                <div className="particle-practice"><div><small>CEK PEMAHAMAN</small><h3>{particleQuestion}</h3><p>{activeParticle.uses[0].meaning}</p></div><div className="particle-options">{particleChoices.map((choice)=><button key={choice} className={particleAnswer===choice?(choice===activeParticle.char?"correct":"wrong"):""} onClick={()=>setParticleAnswer(choice)}>{choice}</button>)}</div>{particleAnswer&&<strong>{particleAnswer===activeParticle.char?"Benar—fungsi dan konteksnya cocok.":`Belum tepat. Jawabannya ${activeParticle.char}.`}</strong>}</div>
+                <button className="primary complete-lesson" onClick={()=>markComplete(`particle-${activeParticle.id}`,`Partikel ${activeParticle.char} sudah dipahami!`)}>{completed.includes(`particle-${activeParticle.id}`)?"Sudah dipahami ✓":"Tandai sudah paham"}</button>
+              </article>
+            </div>
+          </div>}
+
           {view === "kanji" && <div className="kanji-view">
             <div className="section-title"><div><p>KANJI DASAR</p><h2>Kenali makna, bunyi, dan bentuk</h2></div><span>Pelajari kanji lewat kata nyata dan urutan goresan.</span></div>
             <div className="kanji-layout">
@@ -355,6 +408,14 @@ export default function Home() {
             <div className="section-title"><div><p>PERCAKAPAN PRAKTIS</p><h2>Berlatih untuk situasi nyata</h2></div><span>Dengar peran A, lalu ucapkan bagian B.</span></div>
             <div className="scenario-tabs">{CONVERSATIONS.map((scenario,index) => <button className={conversationIndex === index ? "selected" : ""} onClick={() => setConversationIndex(index)} key={scenario.id}><span>{scenario.place}</span><b>{scenario.title}</b></button>)}</div>
             <article className="dialogue-card"><div className="dialogue-head"><div><small>ROLE-PLAY</small><h2>{activeConversation.title}</h2></div><button className="outline" onClick={() => activeConversation.lines.forEach((line,index) => window.setTimeout(() => speakJapanese(line.jp,.78),index*2600))}>♪ Putar semua</button></div><div className="dialogue-lines">{activeConversation.lines.map((line,index) => <div className={line.who === "A" ? "speaker-a" : "speaker-b"} key={`${line.who}-${index}`}><span>{line.who}</span><button onClick={() => speakJapanese(line.jp)} aria-label="Dengarkan kalimat">♪</button><p><b>{line.jp}</b><em>{line.romaji}</em><small>{line.id}</small></p></div>)}</div><div className="role-tip"><b>Giliranmu</b><p>Putar kalimat A, jeda, lalu ucapkan kalimat B tanpa membaca romaji.</p><button className="primary" onClick={() => markComplete(`conversation-${activeConversation.id}`,"Skenario percakapan selesai!")}>{completed.includes(`conversation-${activeConversation.id}`) ? "Latihan selesai ✓" : "Saya sudah role-play"}</button></div></article>
+          </div>}
+
+          {view === "situasi" && <div className="practical-view">
+            <div className="section-title"><div><p>JEPANG UNTUK DUNIA NYATA</p><h2>Belajar lewat misi, bukan bab</h2></div><span>Selesaikan satu kebutuhan komunikasi setiap sesi.</span></div>
+            <div className="can-do-banner"><span>できる</span><div><b>Target Can-do</b><p>Setelah satu pelajaran, kamu harus bisa melakukan sesuatu dalam bahasa Jepang—bukan hanya mengenali rumusnya.</p></div></div>
+            <div className="practical-layout"><div className="mission-list">{PRACTICAL_LESSONS.map((lesson,index)=><button key={lesson.id} className={`${practicalIndex===index?"selected":""} ${completed.includes(`practical-${lesson.id}`)?"learned":""}`} onClick={()=>setPracticalIndex(index)}><span>{lesson.level}</span><div><b>{lesson.title}</b><small>{lesson.place}</small></div><i>{completed.includes(`practical-${lesson.id}`)?"✓":"→"}</i></button>)}</div>
+              <article className="mission-card"><div className="mission-head"><span>{activePractical.place}</span><h2>{activePractical.title}</h2><p>{activePractical.canDo}</p></div><div className="mission-task"><small>MISIMU</small><p>{activePractical.mission}</p></div><div className="useful-phrases"><h3>Kalimat yang benar-benar dipakai</h3>{activePractical.phrases.map((phrase,index)=><div key={phrase.jp}><span>{index+1}</span><button onClick={()=>speakJapanese(phrase.jp,.76)}>♪</button><p><b>{phrase.jp}</b><em>{phrase.romaji}</em><small>{phrase.meaning}</small></p></div>)}</div><div className="mission-insights"><div><small>PARTIKEL DALAM AKSI</small><p>{activePractical.particle}</p></div><div><small>CARA TERDENGAR NATURAL</small><p>{activePractical.tip}</p></div></div><div className="mission-actions"><button className="outline" onClick={()=>activePractical.phrases.forEach((phrase,index)=>window.setTimeout(()=>speakJapanese(phrase.jp,.75),index*3000))}>♪ Dengarkan dialog</button><button className="primary" onClick={()=>markComplete(`practical-${activePractical.id}`,"Misi komunikasi selesai!")}>{completed.includes(`practical-${activePractical.id}`)?"Misi selesai ✓":"Saya bisa melakukannya"}</button></div></article>
+            </div>
           </div>}
 
           {view === "belajar" && <>
@@ -446,6 +507,7 @@ export default function Home() {
       </section>
 
       <footer><span><b>かな</b> KanaNihon</span><p>Dibuat untuk siapa pun yang ingin mulai. Diagram goresan: <a href="https://kanjivg.tagaini.net/" target="_blank" rel="noreferrer">KanjiVG</a> (CC BY-SA 3.0).</p></footer>
+      <audio ref={audioRef} preload="none" aria-hidden="true" />
       {toast && <div className="toast" role="status">{toast}</div>}
     </main>
   );

@@ -116,3 +116,71 @@ export const SOURCES = [
   {name:"Nihongo e-na",url:"https://nihongo-e-na.com/",note:"Kategori membaca, menulis, menyimak, berbicara, grammar, dan budaya"},
   {name:"JLPT Official",url:"https://www.jlpt.jp/e/about/levelsummary.html",note:"Acuan kemampuan N5 sampai N1"},
 ];
+
+export type ParticleUse = { label:string; pattern:string; example:string; romaji:string; meaning:string; note?:string };
+export type Particle = { id:string; char:string; name:string; level:string; core:string; summary:string; uses:ParticleUse[]; contrast?:string };
+
+export const PARTICLES: Particle[] = [
+  {id:"wa",char:"は",name:"wa",level:"N5",core:"Topik pembicaraan",summary:"Menandai hal yang sedang dibicarakan atau membandingkan dua hal. Saat menjadi partikel, は dibaca wa.",uses:[
+    {label:"Memperkenalkan topik",pattern:"A は B です",example:"私は学生です。",romaji:"Watashi wa gakusei desu.",meaning:"Saya adalah pelajar.",note:"Informasi baru ada setelah は."},
+    {label:"Membandingkan",pattern:"A は…、B は…",example:"肉は食べますが、魚は食べません。",romaji:"Niku wa tabemasu ga, sakana wa tabemasen.",meaning:"Daging saya makan, tetapi ikan tidak."}],contrast:"は mengarahkan sorotan ke topik; が mengidentifikasi pelaku atau informasi yang baru ditemukan."},
+  {id:"ga",char:"が",name:"ga",level:"N5",core:"Subjek yang disorot",summary:"Menandai siapa atau apa yang melakukan, mengalami, ada, disukai, atau mampu melakukan sesuatu.",uses:[
+    {label:"Menjawab siapa/apa",pattern:"A が V",example:"田中さんが来ました。",romaji:"Tanaka-san ga kimashita.",meaning:"Tanaka yang datang."},
+    {label:"Keberadaan",pattern:"N が あります／います",example:"公園に猫がいます。",romaji:"Kouen ni neko ga imasu.",meaning:"Ada kucing di taman."},
+    {label:"Suka dan kemampuan",pattern:"N が 好き／できます",example:"日本語が好きです。",romaji:"Nihongo ga suki desu.",meaning:"Saya suka bahasa Jepang."}],contrast:"Gunakan は untuk topik yang sudah diketahui; gunakan が ketika jawaban berfokus pada siapa/apa."},
+  {id:"o",char:"を",name:"o",level:"N5",core:"Objek tindakan",summary:"Menandai benda yang langsung terkena tindakan. Dibaca o, bukan wo, dalam bahasa Jepang modern.",uses:[
+    {label:"Objek langsung",pattern:"N を V",example:"本を読みます。",romaji:"Hon o yomimasu.",meaning:"Saya membaca buku."},
+    {label:"Rute yang dilalui",pattern:"Tempat を Gerak",example:"公園を歩きます。",romaji:"Kouen o arukimasu.",meaning:"Saya berjalan melewati taman."}],contrast:"を menandai objek/rute, sedangkan で menandai tempat kegiatan atau alat."},
+  {id:"ni",char:"に",name:"ni",level:"N5",core:"Titik tujuan",summary:"Menunjuk titik yang spesifik: waktu, tujuan, penerima, tempat keberadaan, atau hasil perubahan.",uses:[
+    {label:"Waktu tertentu",pattern:"Waktu に V",example:"七時に起きます。",romaji:"Shichiji ni okimasu.",meaning:"Saya bangun pukul tujuh.",note:"Biasanya tidak dipakai setelah 今日, 毎日, atau いつ."},
+    {label:"Tujuan",pattern:"Tempat に 行く",example:"学校に行きます。",romaji:"Gakkou ni ikimasu.",meaning:"Saya pergi ke sekolah."},
+    {label:"Tempat keberadaan",pattern:"Tempat に N が いる",example:"部屋に先生がいます。",romaji:"Heya ni sensei ga imasu.",meaning:"Guru berada di kamar."},
+    {label:"Penerima",pattern:"Orang に N を V",example:"友達に写真を見せます。",romaji:"Tomodachi ni shashin o misemasu.",meaning:"Saya memperlihatkan foto kepada teman."}],contrast:"に adalah titik tujuan/keberadaan; で adalah lokasi terjadinya kegiatan."},
+  {id:"de",char:"で",name:"de",level:"N5",core:"Tempat atau sarana kegiatan",summary:"Menandai lokasi sebuah tindakan, alat, bahan, bahasa, atau sebab.",uses:[
+    {label:"Tempat kegiatan",pattern:"Tempat で V",example:"図書館で勉強します。",romaji:"Toshokan de benkyou shimasu.",meaning:"Saya belajar di perpustakaan."},
+    {label:"Alat / kendaraan",pattern:"Alat で V",example:"電車で行きます。",romaji:"Densha de ikimasu.",meaning:"Saya pergi dengan kereta."},
+    {label:"Bahasa / bahan",pattern:"Bahasa で V",example:"日本語で話してください。",romaji:"Nihongo de hanashite kudasai.",meaning:"Tolong berbicara dalam bahasa Jepang."}],contrast:"駅にいます = berada di stasiun; 駅で待ちます = menunggu di stasiun."},
+  {id:"e",char:"へ",name:"e",level:"N5",core:"Arah pergerakan",summary:"Menunjukkan arah yang dituju. Sebagai partikel, へ dibaca e.",uses:[
+    {label:"Arah",pattern:"Tempat へ Gerak",example:"日本へ行きます。",romaji:"Nihon e ikimasu.",meaning:"Saya pergi ke arah/Jepang."}],contrast:"へ menekankan arah perjalanan; に menekankan titik tujuan. Dalam banyak kalimat gerak keduanya dapat dipakai."},
+  {id:"to",char:"と",name:"to",level:"N5",core:"Bersama dan kutipan",summary:"Menghubungkan daftar yang lengkap, teman melakukan kegiatan, atau isi ucapan/pikiran.",uses:[
+    {label:"Dan (daftar lengkap)",pattern:"A と B",example:"パンと卵を買います。",romaji:"Pan to tamago o kaimasu.",meaning:"Saya membeli roti dan telur."},
+    {label:"Bersama",pattern:"Orang と V",example:"友達と映画を見ます。",romaji:"Tomodachi to eiga o mimasu.",meaning:"Saya menonton film bersama teman."},
+    {label:"Mengutip",pattern:"「…」と 言う",example:"「ありがとう」と言いました。",romaji:"Arigatou to iimashita.",meaning:"Dia berkata, “terima kasih”."}],contrast:"と adalah daftar lengkap; や berarti contoh di antara hal lain yang tidak disebut."},
+  {id:"mo",char:"も",name:"mo",level:"N5",core:"Juga / bahkan",summary:"Menggantikan は, が, atau を untuk menyatakan bahwa informasi yang sama berlaku juga.",uses:[
+    {label:"Juga",pattern:"A も B",example:"私もインドネシア人です。",romaji:"Watashi mo Indoneshiajin desu.",meaning:"Saya juga orang Indonesia."},
+    {label:"Jumlah penekanan",pattern:"Angka も",example:"三時間も待ちました。",romaji:"Sanjikan mo machimashita.",meaning:"Saya menunggu sampai tiga jam."}],contrast:"も sering menggantikan partikel, tetapi setelah に/で/と dapat menjadi にも/でも/とも."},
+  {id:"no",char:"の",name:"no",level:"N5",core:"Kepemilikan dan penjelas",summary:"Menghubungkan kata benda. Kata sebelum の menerangkan kata setelahnya.",uses:[
+    {label:"Kepemilikan",pattern:"Pemilik の Benda",example:"これは私の本です。",romaji:"Kore wa watashi no hon desu.",meaning:"Ini buku saya."},
+    {label:"Kategori / asal",pattern:"Keterangan の N",example:"日本語の先生です。",romaji:"Nihongo no sensei desu.",meaning:"Guru bahasa Jepang."},
+    {label:"Menggantikan benda",pattern:"A の",example:"赤いのをください。",romaji:"Akai no o kudasai.",meaning:"Tolong beri yang merah."}],contrast:"Urutannya kebalikan dari bahasa Indonesia: 日本の車 = mobil Jepang."},
+  {id:"kara",char:"から",name:"kara",level:"N5",core:"Titik awal / sebab",summary:"Menunjukkan asal waktu/tempat atau alasan.",uses:[
+    {label:"Dari",pattern:"A から",example:"九時から働きます。",romaji:"Kuji kara hatarakimasu.",meaning:"Saya bekerja mulai pukul sembilan."},
+    {label:"Karena",pattern:"Kalimat から",example:"雨ですから、行きません。",romaji:"Ame desu kara, ikimasen.",meaning:"Karena hujan, saya tidak pergi."}],contrast:"から menandai awal; まで menandai batas akhir."},
+  {id:"made",char:"まで",name:"made",level:"N5",core:"Batas akhir",summary:"Menunjukkan sampai kapan atau sejauh mana sesuatu berlangsung.",uses:[
+    {label:"Sampai",pattern:"A から B まで",example:"九時から五時まで働きます。",romaji:"Kuji kara goji made hatarakimasu.",meaning:"Saya bekerja dari pukul sembilan sampai lima."}],contrast:"まで adalah batas; までに berarti paling lambat sebelum batas itu."},
+  {id:"ya",char:"や",name:"ya",level:"N5",core:"Contoh dalam daftar",summary:"Menyebut beberapa contoh, dengan makna “A, B, dan sebagainya”.",uses:[
+    {label:"Daftar tidak lengkap",pattern:"A や B（など）",example:"机の上に本やノートがあります。",romaji:"Tsukue no ue ni hon ya nooto ga arimasu.",meaning:"Di meja ada buku, catatan, dan lain-lain."}],contrast:"と menyebut semua item; や hanya memberi contoh."},
+  {id:"ka",char:"か",name:"ka",level:"N5",core:"Pertanyaan atau pilihan",summary:"Diletakkan di akhir kalimat sopan untuk bertanya, atau di antara pilihan untuk berarti “atau”.",uses:[
+    {label:"Pertanyaan",pattern:"Kalimat か",example:"これは何ですか。",romaji:"Kore wa nan desu ka.",meaning:"Ini apa?"},
+    {label:"Atau",pattern:"A か B",example:"土曜日か日曜日に行きます。",romaji:"Doyoubi ka nichiyoubi ni ikimasu.",meaning:"Saya pergi Sabtu atau Minggu."}],contrast:"Dalam percakapan kasual, pertanyaan sering memakai intonasi naik tanpa か."},
+  {id:"ne",char:"ね",name:"ne",level:"N5",core:"Mencari kesepakatan",summary:"Mengajak lawan bicara berbagi perasaan atau mengonfirmasi informasi bersama.",uses:[
+    {label:"Ya / kan",pattern:"Kalimat ね",example:"今日は暑いですね。",romaji:"Kyou wa atsui desu ne.",meaning:"Hari ini panas ya."}],contrast:"ね mengajak setuju; よ memberi informasi yang dianggap belum diketahui lawan bicara."},
+  {id:"yo",char:"よ",name:"yo",level:"N5",core:"Memberi penegasan",summary:"Menegaskan atau menyampaikan informasi baru kepada lawan bicara.",uses:[
+    {label:"Lho / ya",pattern:"Kalimat よ",example:"この店は安いですよ。",romaji:"Kono mise wa yasui desu yo.",meaning:"Toko ini murah, lho."}],contrast:"よ = saya memberi tahu; ね = kita sama-sama merasakan/mengetahui."},
+  {id:"dake",char:"だけ",name:"dake",level:"N4",core:"Hanya",summary:"Membatasi sesuatu tanpa nuansa negatif.",uses:[
+    {label:"Hanya",pattern:"N だけ",example:"水だけ飲みます。",romaji:"Mizu dake nomimasu.",meaning:"Saya hanya minum air."}],contrast:"だけ dapat dipakai dalam kalimat positif; しか selalu diikuti bentuk negatif."},
+  {id:"shika",char:"しか",name:"shika",level:"N4",core:"Tidak ada selain",summary:"Menekankan keterbatasan dan selalu dipasangkan dengan predikat negatif.",uses:[
+    {label:"Hanya ... saja",pattern:"N しか + negatif",example:"千円しかありません。",romaji:"Sen-en shika arimasen.",meaning:"Saya hanya punya seribu yen."}],contrast:"水だけ飲みます netral; 水しか飲みません menekankan tidak minum apa pun selain air."},
+  {id:"made-ni",char:"までに",name:"made ni",level:"N4",core:"Batas waktu penyelesaian",summary:"Sesuatu harus selesai sebelum atau paling lambat pada waktu tersebut.",uses:[
+    {label:"Paling lambat",pattern:"Waktu までに V",example:"金曜日までに出してください。",romaji:"Kinyoubi made ni dashite kudasai.",meaning:"Tolong serahkan paling lambat Jumat."}],contrast:"五時まで働く = bekerja terus sampai jam lima; 五時までに終わる = selesai paling lambat jam lima."},
+];
+
+export type PracticalLesson = { id:string;level:string;title:string;place:string;canDo:string;mission:string;phrases:{jp:string;romaji:string;meaning:string}[];particle:string;tip:string };
+export const PRACTICAL_LESSONS: PracticalLesson[] = [
+  {id:"meet",level:"A1",title:"Kenalan tanpa kaku",place:"Pertemuan pertama",canDo:"Memperkenalkan nama, asal, dan pekerjaan",mission:"Kenalkan dirimu dalam tiga kalimat tanpa membaca romaji.",phrases:[{jp:"はじめまして。アリです。",romaji:"Hajimemashite. Ari desu.",meaning:"Salam kenal. Saya Ari."},{jp:"インドネシアから来ました。",romaji:"Indonesia kara kimashita.",meaning:"Saya berasal dari Indonesia."},{jp:"どうぞよろしくお願いします。",romaji:"Douzo yoroshiku onegaishimasu.",meaning:"Senang berkenalan dengan Anda."}],particle:"は untuk topik diri; から untuk asal",tip:"Dalam bahasa Jepang, subjek yang sudah jelas sering dihilangkan. Tidak perlu mengulang 私は di setiap kalimat."},
+  {id:"order",level:"A1",title:"Pesan makanan",place:"Restoran",canDo:"Memesan, menambah pesanan, dan meminta tagihan",mission:"Pesan satu makanan dan satu minuman dengan sopan.",phrases:[{jp:"ラーメンを一つお願いします。",romaji:"Raamen o hitotsu onegaishimasu.",meaning:"Minta satu ramen."},{jp:"水もお願いします。",romaji:"Mizu mo onegaishimasu.",meaning:"Minta air juga."},{jp:"お会計をお願いします。",romaji:"Okaikei o onegaishimasu.",meaning:"Minta tagihannya."}],particle:"を untuk objek pesanan; も untuk tambahan",tip:"お願いします terdengar fleksibel dan sopan untuk memesan. ください lebih langsung."},
+  {id:"direction",level:"A1",title:"Tidak tersesat",place:"Stasiun dan jalan",canDo:"Menanyakan lokasi dan memahami petunjuk sederhana",mission:"Tanyakan letak stasiun dan ulangi arah yang kamu dengar.",phrases:[{jp:"すみません、駅はどこですか。",romaji:"Sumimasen, eki wa doko desu ka.",meaning:"Permisi, stasiun di mana?"},{jp:"まっすぐ行って、右に曲がってください。",romaji:"Massugu itte, migi ni magatte kudasai.",meaning:"Jalan lurus lalu belok kanan."},{jp:"駅の前にあります。",romaji:"Eki no mae ni arimasu.",meaning:"Ada di depan stasiun."}],particle:"は untuk topik lokasi; の untuk hubungan; に untuk keberadaan",tip:"Mulai dengan すみません sebelum bertanya kepada orang asing."},
+  {id:"shop",level:"A1",title:"Belanja dengan yakin",place:"Toko",canDo:"Menanyakan harga, ukuran, dan memilih barang",mission:"Tanyakan harga lalu minta barang yang berbeda warna.",phrases:[{jp:"これはいくらですか。",romaji:"Kore wa ikura desu ka.",meaning:"Ini berapa harganya?"},{jp:"もう少し大きいのはありますか。",romaji:"Mou sukoshi ookii no wa arimasu ka.",meaning:"Ada yang sedikit lebih besar?"},{jp:"これをください。",romaji:"Kore o kudasai.",meaning:"Saya ambil ini."}],particle:"は untuk pilihan yang dibandingkan; を untuk barang yang dipilih",tip:"Jangan menunjuk orang dengan これ. Gunakan この人 atau nama orang."},
+  {id:"schedule",level:"A2",title:"Membuat janji",place:"Chat dengan teman",canDo:"Mengajak, menentukan waktu, dan menolak halus",mission:"Ajak teman makan pada hari Sabtu dan sepakati jamnya.",phrases:[{jp:"土曜日に一緒にご飯を食べませんか。",romaji:"Doyoubi ni issho ni gohan o tabemasen ka.",meaning:"Mau makan bersama hari Sabtu?"},{jp:"三時はどうですか。",romaji:"Sanji wa dou desu ka.",meaning:"Bagaimana kalau jam tiga?"},{jp:"すみません、土曜日はちょっと…。",romaji:"Sumimasen, doyoubi wa chotto…",meaning:"Maaf, hari Sabtu agak…"}],particle:"に untuk waktu; は untuk menawarkan/membandingkan waktu",tip:"〜はちょっと… adalah cara menolak tidak langsung yang umum dan lebih halus."},
+  {id:"doctor",level:"A2",title:"Menjelaskan keluhan",place:"Klinik",canDo:"Mengatakan bagian tubuh yang sakit dan sejak kapan",mission:"Jelaskan dua gejala dan kapan mulainya.",phrases:[{jp:"頭が痛いです。",romaji:"Atama ga itai desu.",meaning:"Kepala saya sakit."},{jp:"昨日から熱があります。",romaji:"Kinou kara netsu ga arimasu.",meaning:"Saya demam sejak kemarin."},{jp:"薬を飲んでもいいですか。",romaji:"Kusuri o nondemo ii desu ka.",meaning:"Bolehkah saya minum obat?"}],particle:"が untuk kondisi; から untuk titik awal; を untuk objek",tip:"Untuk keadaan tubuh, bagian yang mengalami kondisi biasanya ditandai が."},
+];
