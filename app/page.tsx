@@ -17,7 +17,15 @@ const COMIC_SCENES: ComicScene[] = [
   {id:"neko",word:"ねこ",romaji:"neko",meaning:"kucing",image:"/comic/neko.webp",alt:"Kucing belang duduk di kamar Jepang",hint:"Hewan ini suka mengeong."},
   {id:"yama",word:"やま",romaji:"yama",meaning:"gunung",image:"/comic/yama.webp",alt:"Gunung besar di balik perbukitan",hint:"Bentang alam ini menjulang tinggi."},
   {id:"tsuki",word:"つき",romaji:"tsuki",meaning:"bulan",image:"/comic/tsuki.webp",alt:"Bulan purnama di langit malam",hint:"Benda langit ini terlihat pada malam hari."},
+  {id:"ringo",word:"りんご",romaji:"ringo",meaning:"apel",image:"/comic/ringo.webp",alt:"Apel merah di dalam keranjang",hint:"Buah bulat ini biasanya berwarna merah atau hijau."},
+  {id:"kuruma",word:"くるま",romaji:"kuruma",meaning:"mobil",image:"/comic/kuruma.webp",alt:"Mobil merah di jalan lingkungan Jepang",hint:"Kendaraan ini memiliki empat roda."},
+  {id:"hana",word:"はな",romaji:"hana",meaning:"bunga",image:"/comic/hana.webp",alt:"Bunga merah mekar di taman",hint:"Tumbuhan ini mekar dan memiliki kelopak."},
+  {id:"tori",word:"とり",romaji:"tori",meaning:"burung",image:"/comic/tori.webp",alt:"Burung kecil bertengger di pagar",hint:"Hewan ini memiliki sayap dan bulu."},
+  {id:"mizu",word:"みず",romaji:"mizu",meaning:"air",image:"/comic/mizu.webp",alt:"Air mengalir dari bambu ke wadah batu",hint:"Cairan bening ini kita minum setiap hari."},
+  {id:"pan",word:"パン",romaji:"pan",meaning:"roti",image:"/comic/pan.webp",alt:"Roti bulat yang baru dipanggang",hint:"Makanan ini dibuat dari adonan dan dipanggang."},
 ];
+
+const COMIC_ROUND_COUNT = COMIC_SCENES.length * 2;
 
 const HIRAGANA: Kana[] = [
   ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
@@ -305,9 +313,11 @@ export default function Home() {
   const activeConversation = CONVERSATIONS[conversationIndex];
   const activeParticle = PARTICLES[particleIndex];
   const activePractical = PRACTICAL_LESSONS[practicalIndex];
-  const activeComic = COMIC_SCENES[comicIndex];
+  const comicMode = comicIndex < COMIC_SCENES.length ? "word-to-image" : "image-to-word";
+  const activeComic = COMIC_SCENES[comicIndex % COMIC_SCENES.length];
   const comicScore = comicCorrect.length;
-  const comicChoices = [activeComic, COMIC_SCENES[(comicIndex + 2) % COMIC_SCENES.length], COMIC_SCENES[(comicIndex + 4) % COMIC_SCENES.length]].sort((a,b)=>a.id.localeCompare(b.id));
+  const activeComicSceneIndex = comicIndex % COMIC_SCENES.length;
+  const comicChoices = [activeComic, COMIC_SCENES[(activeComicSceneIndex + 3) % COMIC_SCENES.length], COMIC_SCENES[(activeComicSceneIndex + 6) % COMIC_SCENES.length], COMIC_SCENES[(activeComicSceneIndex + 9) % COMIC_SCENES.length]].sort((a,b)=>a.id.localeCompare(b.id));
   const particleQuestion = activeParticle.uses[0].example.replace(activeParticle.char,"＿＿");
   const particleChoices = [activeParticle.char, PARTICLES[(particleIndex+3)%PARTICLES.length].char, PARTICLES[(particleIndex+7)%PARTICLES.length].char, PARTICLES[(particleIndex+11)%PARTICLES.length].char].sort();
   const learningPoints = learned.length + learnedWords.length + completed.length;
@@ -534,21 +544,25 @@ export default function Home() {
 
           {view === "kuisgambar" && <div className="comic-quiz-view">
             {!comicFinished ? <>
-              <div className="section-title comic-title"><div><p>KUIS KANA BERGAMBAR</p><h2>Baca, dengar, pilih adegannya</h2></div><span>6 soal · gambar orisinal · tanpa romaji saat memilih</span></div>
-              <div className="comic-session-meta"><span>SOAL {comicIndex + 1} DARI {COMIC_SCENES.length}</span><strong>{comicScore} benar</strong></div>
-              <div className="quiz-progress"><i style={{width:`${((comicIndex + 1) / COMIC_SCENES.length) * 100}%`}} /></div>
+              <div className="section-title comic-title"><div><p>KUIS KANA BERGAMBAR</p><h2>{comicMode === "word-to-image" ? "Baca kata, pilih adegannya" : "Lihat adegan, pilih katanya"}</h2></div><span>24 soal · 12 gambar orisinal · 2 jenis latihan</span></div>
+              <div className="comic-stage"><span>TAHAP {comicMode === "word-to-image" ? "1" : "2"} / 2</span><p>{comicMode === "word-to-image" ? "Hubungkan tulisan kana dengan gambarnya." : "Kenali gambar lalu ingat kata Jepangnya."}</p></div>
+              <div className="comic-session-meta"><span>SOAL {comicIndex + 1} DARI {COMIC_ROUND_COUNT}</span><strong>{comicScore} benar</strong></div>
+              <div className="quiz-progress"><i style={{width:`${((comicIndex + 1) / COMIC_ROUND_COUNT) * 100}%`}} /></div>
               <section className="comic-quiz" aria-label="Kuis kana bergambar">
-                <div className="comic-heading"><div><small>BACA TANPA ROMAJI</small><h3>Mana gambar untuk 「{activeComic.word}」?</h3><p>Dengarkan bunyinya bila perlu, lalu pilih satu adegan.</p></div><button className="outline" onClick={()=>speakJapanese(activeComic.word)}>♪ Putar suara</button></div>
-                <div className="comic-options">
-                  {comicChoices.map((scene)=><button key={scene.id} disabled={comicAnswer!==null} className={comicAnswer===scene.id?(scene.id===activeComic.id?"correct":"wrong"):comicAnswer&&scene.id===activeComic.id?"correct":""} onClick={()=>{setComicAnswer(scene.id);if(scene.id===activeComic.id)setComicCorrect((items)=>items.includes(comicIndex)?items:[...items,comicIndex])}}><img src={scene.image} alt={scene.alt}/><span>{comicAnswer?(scene.id===activeComic.id?`${scene.word} = ${scene.meaning}`:scene.id===comicAnswer?"Belum tepat":"Pilihan lain"):"Pilih adegan"}</span></button>)}
-                </div>
+                <div className="comic-heading"><div><small>{comicMode === "word-to-image" ? "BACA TANPA ROMAJI" : "INGAT KATA DARI GAMBAR"}</small><h3>{comicMode === "word-to-image" ? <>Mana gambar untuk 「{activeComic.word}」?</> : <>Apa kata Jepang untuk gambar ini?</>}</h3><p>{comicMode === "word-to-image" ? "Dengarkan bunyinya bila perlu, lalu pilih satu adegan." : "Pilih tulisan kana yang cocok. Audio terbuka setelah menjawab."}</p></div>{comicMode === "word-to-image" ? <button className="outline" onClick={()=>speakJapanese(activeComic.word)}>♪ Putar suara</button> : comicAnswer ? <button className="outline" onClick={()=>speakJapanese(activeComic.word)}>♪ Dengarkan jawaban</button> : <span className="audio-locked">🔒 Audio setelah menjawab</span>}</div>
+                {comicMode === "word-to-image" ? <div className="comic-options">
+                  {comicChoices.map((scene)=><button key={scene.id} disabled={comicAnswer!==null} className={comicAnswer===scene.id?(scene.id===activeComic.id?"correct":"wrong"):comicAnswer&&scene.id===activeComic.id?"correct":""} onClick={()=>{setComicAnswer(scene.id);if(scene.id===activeComic.id)setComicCorrect((items)=>items.includes(comicIndex)?items:[...items,comicIndex])}}><img src={scene.image} alt={scene.alt}/><span>{comicAnswer?(scene.id===activeComic.id?`${scene.word} = ${scene.meaning}`:scene.id===comicAnswer?"Belum tepat":"Pilihan lain"):`Pilihan ${scene.alt.toLowerCase()}`}</span></button>)}
+                </div> : <div className="comic-picture-word">
+                  <img src={activeComic.image} alt={activeComic.alt}/>
+                  <div className="comic-word-options">{comicChoices.map((scene,index)=><button key={scene.id} disabled={comicAnswer!==null} className={comicAnswer===scene.id?(scene.id===activeComic.id?"correct":"wrong"):comicAnswer&&scene.id===activeComic.id?"correct":""} onClick={()=>{setComicAnswer(scene.id);if(scene.id===activeComic.id)setComicCorrect((items)=>items.includes(comicIndex)?items:[...items,comicIndex])}}><kbd>{index+1}</kbd><b>{scene.word}</b>{comicAnswer&&scene.id===activeComic.id?<span>{scene.romaji} · {scene.meaning}</span>:null}</button>)}</div>
+                </div>}
                 {comicAnswer && <div className={`comic-feedback ${comicAnswer===activeComic.id?"correct":""}`}>{comicAnswer===activeComic.id?`Benar! ${activeComic.word} dibaca ${activeComic.romaji}, artinya ${activeComic.meaning}.`:`Belum tepat. Petunjuk: ${activeComic.hint}`}</div>}
               </section>
               <div className="comic-navigation">
                 <button className="outline" disabled={comicIndex===0} onClick={()=>{setComicIndex((index)=>Math.max(0,index-1));setComicAnswer(null)}}>← Kembali</button>
-                <button className="primary" disabled={!comicAnswer} onClick={()=>{if(comicIndex===COMIC_SCENES.length-1){setComicFinished(true);markComplete("comic-quiz","Kuis gambar selesai!")}else{setComicIndex((index)=>index+1);setComicAnswer(null)}}}>{comicIndex===COMIC_SCENES.length-1?"Lihat hasil":"Soal berikutnya →"}</button>
+                <button className="primary" disabled={!comicAnswer} onClick={()=>{if(comicIndex===COMIC_ROUND_COUNT-1){setComicFinished(true);markComplete("comic-quiz","Kuis gambar selesai!")}else{setComicIndex((index)=>index+1);setComicAnswer(null)}}}>{comicIndex===COMIC_ROUND_COUNT-1?"Lihat hasil":"Soal berikutnya →"}</button>
               </div>
-            </> : <div className="result-card comic-result"><span className="result-seal">絵</span><p>SESI GAMBAR SELESAI</p><h2>{comicScore}/{COMIC_SCENES.length} benar</h2><p>{comicScore===COMIC_SCENES.length?"Sempurna! Kamu bisa menghubungkan bunyi kana dengan makna nyata.":"Bagus. Ulangi adegan yang masih tertukar agar bunyi dan maknanya melekat."}</p><button className="primary" onClick={()=>{setComicIndex(0);setComicCorrect([]);setComicAnswer(null);setComicFinished(false)}}>Ulangi 6 soal</button><button className="outline" onClick={()=>setView("belajar")}>Kembali ke Kana</button></div>}
+            </> : <div className="result-card comic-result"><span className="result-seal">絵</span><p>SESI GAMBAR SELESAI</p><h2>{comicScore}/{COMIC_ROUND_COUNT} benar</h2><p>{comicScore===COMIC_ROUND_COUNT?"Sempurna! Kamu bisa menghubungkan gambar, bunyi, dan tulisan kana.":"Bagus. Ulangi adegan yang masih tertukar agar bunyi dan maknanya melekat."}</p><button className="primary" onClick={()=>{setComicIndex(0);setComicCorrect([]);setComicAnswer(null);setComicFinished(false)}}>Ulangi 24 soal</button><button className="outline" onClick={()=>setView("belajar")}>Kembali ke Kana</button></div>}
           </div>}
 
           {view === "latihan" && <div className="writing-view">
