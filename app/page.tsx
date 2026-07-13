@@ -5,6 +5,7 @@ import { CONVERSATIONS, GRAMMAR, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS,
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
+type KanaSet = "basic" | "voiced" | "contracted" | "special";
 type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi";
 
 const HIRAGANA: Kana[] = [
@@ -30,6 +31,41 @@ const KATAKANA: Kana[] = [
   ["ヤ","ya"],["ユ","yu"],["ヨ","yo"],["ラ","ra"],["リ","ri"],
   ["ル","ru"],["レ","re"],["ロ","ro"],["ワ","wa"],["ヲ","wo"],["ン","n"],
 ].map(([char, romaji]) => ({ char, romaji }));
+
+const HIRAGANA_VOICED: Kana[] = [
+  ["が","ga"],["ぎ","gi"],["ぐ","gu"],["げ","ge"],["ご","go"],
+  ["ざ","za"],["じ","ji"],["ず","zu"],["ぜ","ze"],["ぞ","zo"],
+  ["だ","da"],["ぢ","ji (di)"],["づ","zu (du)"],["で","de"],["ど","do"],
+  ["ば","ba"],["び","bi"],["ぶ","bu"],["べ","be"],["ぼ","bo"],
+  ["ぱ","pa"],["ぴ","pi"],["ぷ","pu"],["ぺ","pe"],["ぽ","po"],
+].map(([char, romaji]) => ({ char, romaji }));
+
+const KATAKANA_VOICED: Kana[] = HIRAGANA_VOICED.map(({char,romaji}) => ({char:String.fromCodePoint(char.codePointAt(0)! + 0x60),romaji}));
+const HIRAGANA_CONTRACTED: Kana[] = [
+  ["きゃ","kya"],["きゅ","kyu"],["きょ","kyo"],["ぎゃ","gya"],["ぎゅ","gyu"],["ぎょ","gyo"],
+  ["しゃ","sha"],["しゅ","shu"],["しょ","sho"],["じゃ","ja"],["じゅ","ju"],["じょ","jo"],
+  ["ちゃ","cha"],["ちゅ","chu"],["ちょ","cho"],["にゃ","nya"],["にゅ","nyu"],["にょ","nyo"],
+  ["ひゃ","hya"],["ひゅ","hyu"],["ひょ","hyo"],["びゃ","bya"],["びゅ","byu"],["びょ","byo"],
+  ["ぴゃ","pya"],["ぴゅ","pyu"],["ぴょ","pyo"],["みゃ","mya"],["みゅ","myu"],["みょ","myo"],
+  ["りゃ","rya"],["りゅ","ryu"],["りょ","ryo"],
+].map(([char, romaji]) => ({ char, romaji }));
+const KATAKANA_CONTRACTED: Kana[] = HIRAGANA_CONTRACTED.map(({char,romaji}) => ({char:[...char].map(c=>String.fromCodePoint(c.codePointAt(0)!+0x60)).join(""),romaji}));
+const HIRAGANA_SPECIAL: Kana[] = [
+  ["っ","konsonan ganda"],["ああ","aa"],["いい","ii"],["うう","uu"],["えい","ee / ei"],["おう","oo / ou"],
+  ["は","wa (partikel)"],["へ","e (partikel)"],["を","o (partikel)"],
+].map(([char, romaji]) => ({ char, romaji }));
+const KATAKANA_SPECIAL: Kana[] = [
+  ["ッ","konsonan ganda"],["ー","vokal panjang"],["ファ","fa"],["フィ","fi"],["フェ","fe"],["フォ","fo"],
+  ["ティ","ti"],["ディ","di"],["ウィ","wi"],["ウェ","we"],["ウォ","wo"],["ヴ","vu"],
+].map(([char, romaji]) => ({ char, romaji }));
+const TOTAL_KANA_FORMS = new Set([...HIRAGANA,...HIRAGANA_VOICED,...HIRAGANA_CONTRACTED,...HIRAGANA_SPECIAL,...KATAKANA,...KATAKANA_VOICED,...KATAKANA_CONTRACTED,...KATAKANA_SPECIAL].map(item=>item.char)).size;
+
+const KANA_SET_INFO: Record<KanaSet,{label:string;hint:string}> = {
+  basic:{label:"Dasar 46",hint:"Gojūon: fondasi bunyi dan bentuk kana."},
+  voiced:{label:"Dakuten ゛゜",hint:"Bunyi bersuara dan setengah bersuara: が・ざ・だ・ば・ぱ."},
+  contracted:{label:"Kombinasi ゃゅょ",hint:"Yōon: gabungkan kana kolom i dengan ゃ・ゅ・ょ kecil sebagai satu ketukan."},
+  special:{label:"Bunyi khusus",hint:"Konsonan ganda, vokal panjang, dan bacaan partikel yang perlu dikenali."},
+};
 
 const EXAMPLES: Record<string, [string, string, string]> = {
   a: ["あさ", "asa", "pagi"], i: ["いぬ", "inu", "anjing"], u: ["うみ", "umi", "laut"],
@@ -58,6 +94,7 @@ function shuffle<T>(items: T[]) {
 
 export default function Home() {
   const [script, setScript] = useState<Script>("hiragana");
+  const [kanaSet, setKanaSet] = useState<KanaSet>("basic");
   const [view, setView] = useState<View>("kurikulum");
   const [selected, setSelected] = useState(0);
   const [learned, setLearned] = useState<string[]>([]);
@@ -87,7 +124,10 @@ export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const kana = script === "hiragana" ? HIRAGANA : KATAKANA;
+  const kanaCollections = script === "hiragana"
+    ? {basic:HIRAGANA,voiced:HIRAGANA_VOICED,contracted:HIRAGANA_CONTRACTED,special:HIRAGANA_SPECIAL}
+    : {basic:KATAKANA,voiced:KATAKANA_VOICED,contracted:KATAKANA_CONTRACTED,special:KATAKANA_SPECIAL};
+  const kana = kanaCollections[kanaSet];
   const active = kana[selected] ?? kana[0];
   const scriptLearned = learned.filter((x) => kana.some((k) => k.char === x)).length;
 
@@ -116,7 +156,7 @@ export default function Home() {
   }, [active, view]);
 
   const percent = Math.round((scriptLearned / kana.length) * 100);
-  const example = EXAMPLES[active.romaji];
+  const example = EXAMPLES[active.romaji] ?? [active.char, active.romaji, KANA_SET_INFO[kanaSet].hint];
   const strokeAsset = `/strokes/${active.char.codePointAt(0)!.toString(16).padStart(5, "0")}.svg`;
 
   function audioId(text: string) {
@@ -154,7 +194,7 @@ export default function Home() {
     audio.play().catch(() => speakWithSystemVoice(text, rate));
   }
 
-  function speak(item = active) { speakJapanese(item.char); }
+  function speak(item = active) { speakJapanese(item.char === "ー" ? "コーヒー" : item.char); }
 
   function markComplete(id: string, message = "Pelajaran selesai!") {
     setCompleted((old) => old.includes(id) ? old : [...old, id]);
@@ -170,6 +210,7 @@ export default function Home() {
 
   function switchScript(next: Script) {
     setScript(next);
+    setKanaSet("basic");
     setSelected(0);
     setFinished(false);
     setAnswerState("idle");
@@ -237,11 +278,9 @@ export default function Home() {
     canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
   }
 
-  const groups = useMemo(() => GROUPS.map((name, i) => ({
-    name,
-    items: kana.slice(GROUP_STARTS[i], GROUP_STARTS[i + 1] ?? kana.length),
-    start: GROUP_STARTS[i],
-  })), [kana]);
+  const groups = useMemo(() => kanaSet === "basic"
+    ? GROUPS.map((name, i) => ({name,items:kana.slice(GROUP_STARTS[i], GROUP_STARTS[i + 1] ?? kana.length),start:GROUP_STARTS[i]}))
+    : Array.from({length:Math.ceil(kana.length / 5)},(_,i)=>({name:String(i+1).padStart(2,"0"),items:kana.slice(i*5,i*5+5),start:i*5})), [kana,kanaSet]);
   const wordCategories = ["Semua", ...Array.from(new Set(VOCABULARY.map((word) => word.category)))];
   const filteredWords = wordCategory === "Semua" ? VOCABULARY : VOCABULARY.filter((word) => word.category === wordCategory);
   const activeWord = filteredWords[wordIndex % filteredWords.length];
@@ -317,7 +356,7 @@ export default function Home() {
             <div className="overview-grid">
               <div><small>AKTIVITAS SELESAI</small><strong>{learningPoints}</strong><span>tersimpan di perangkat</span></div>
               <div><small>KOSAKATA DIKUASAI</small><strong>{learnedWords.length}<i>/30</i></strong><span>target paket pemula</span></div>
-              <div><small>KANA DIKUASAI</small><strong>{learned.length}<i>/92</i></strong><span>Hiragana + Katakana</span></div>
+              <div><small>KANA DIKUASAI</small><strong>{learned.length}<i>/{TOTAL_KANA_FORMS}</i></strong><span>Dasar, variasi, dan kombinasi</span></div>
             </div>
             <article className="continue-card">
               <div className="continue-symbol">あ</div>
@@ -421,8 +460,12 @@ export default function Home() {
           {view === "belajar" && <>
             <div className="section-title">
               <div><p>MATERI LENGKAP</p><h2>{script === "hiragana" ? "Hiragana" : "Katakana"}</h2></div>
-              <span>Tekan satu huruf untuk mempelajarinya</span>
+              <span>{kana.length} bentuk pada bagian ini</span>
             </div>
+            <div className="kana-set-tabs" role="tablist" aria-label="Jenis bunyi kana">
+              {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((set)=><button role="tab" aria-selected={kanaSet===set} className={kanaSet===set?"selected":""} key={set} onClick={()=>{setKanaSet(set);setSelected(0)}}><b>{KANA_SET_INFO[set].label}</b><span>{set === "basic" ? "あ" : set === "voiced" ? "が" : set === "contracted" ? "きゃ" : "っ"}</span></button>)}
+            </div>
+            <div className="kana-set-note"><b>{KANA_SET_INFO[kanaSet].label}</b><span>{KANA_SET_INFO[kanaSet].hint}</span></div>
             <div className="learn-layout">
               <div className="kana-chart">
                 {groups.map((group) => <div className="kana-row" key={group.name}>
@@ -444,7 +487,7 @@ export default function Home() {
                   <div><b>{script === "katakana" ? example[0].replace(/[\u3040-\u309f]/g, (c) => String.fromCharCode(c.charCodeAt(0) + 0x60)) : example[0]}</b><span>{example[1]} · {example[2]}</span></div>
                 </div>
                 <div className="detail-actions">
-                  <button className="outline" onClick={() => { setView("latihan"); clearCanvas(); }}>Latihan tulis</button>
+                  <button className="outline" disabled={[...active.char].length > 1} title={[...active.char].length > 1 ? "Pelajari tiap huruf penyusunnya di bagian Dasar" : undefined} onClick={() => { setView("latihan"); clearCanvas(); }}>{[...active.char].length > 1 ? "Gabungan bunyi" : "Latihan tulis"}</button>
                   <button className="primary" onClick={markLearned}>{learned.includes(active.char) ? "Sudah dikuasai ✓" : "Tandai dikuasai"}</button>
                 </div>
               </article>
