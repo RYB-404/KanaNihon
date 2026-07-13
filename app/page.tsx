@@ -6,7 +6,18 @@ import { CONVERSATIONS, GRAMMAR, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS,
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
 type KanaSet = "basic" | "voiced" | "contracted" | "special";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi";
+
+type ComicScene = { id: string; word: string; romaji: string; meaning: string; image: string; alt: string; hint: string };
+
+const COMIC_SCENES: ComicScene[] = [
+  {id:"inu",word:"いぬ",romaji:"inu",meaning:"anjing",image:"/comic/inu.webp",alt:"Anjing Shiba Inu di rumah",hint:"Makhluk ini sering menjadi hewan peliharaan."},
+  {id:"kasa",word:"かさ",romaji:"kasa",meaning:"payung",image:"/comic/kasa.webp",alt:"Payung Jepang di tengah hujan",hint:"Benda ini dipakai saat hujan."},
+  {id:"sakana",word:"さかな",romaji:"sakana",meaning:"ikan",image:"/comic/sakana.webp",alt:"Seekor ikan berenang di air",hint:"Makhluk ini hidup dan berenang di air."},
+  {id:"neko",word:"ねこ",romaji:"neko",meaning:"kucing",image:"/comic/neko.webp",alt:"Kucing belang duduk di kamar Jepang",hint:"Hewan ini suka mengeong."},
+  {id:"yama",word:"やま",romaji:"yama",meaning:"gunung",image:"/comic/yama.webp",alt:"Gunung besar di balik perbukitan",hint:"Bentang alam ini menjulang tinggi."},
+  {id:"tsuki",word:"つき",romaji:"tsuki",meaning:"bulan",image:"/comic/tsuki.webp",alt:"Bulan purnama di langit malam",hint:"Benda langit ini terlihat pada malam hari."},
+];
 
 const HIRAGANA: Kana[] = [
   ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
@@ -96,6 +107,9 @@ export default function Home() {
   const [script, setScript] = useState<Script>("hiragana");
   const [kanaSet, setKanaSet] = useState<KanaSet>("basic");
   const [comicAnswer, setComicAnswer] = useState<string | null>(null);
+  const [comicIndex, setComicIndex] = useState(0);
+  const [comicCorrect, setComicCorrect] = useState<number[]>([]);
+  const [comicFinished, setComicFinished] = useState(false);
   const [view, setView] = useState<View>("kurikulum");
   const [selected, setSelected] = useState(0);
   const [learned, setLearned] = useState<string[]>([]);
@@ -291,6 +305,9 @@ export default function Home() {
   const activeConversation = CONVERSATIONS[conversationIndex];
   const activeParticle = PARTICLES[particleIndex];
   const activePractical = PRACTICAL_LESSONS[practicalIndex];
+  const activeComic = COMIC_SCENES[comicIndex];
+  const comicScore = comicCorrect.length;
+  const comicChoices = [activeComic, COMIC_SCENES[(comicIndex + 2) % COMIC_SCENES.length], COMIC_SCENES[(comicIndex + 4) % COMIC_SCENES.length]].sort((a,b)=>a.id.localeCompare(b.id));
   const particleQuestion = activeParticle.uses[0].example.replace(activeParticle.char,"＿＿");
   const particleChoices = [activeParticle.char, PARTICLES[(particleIndex+3)%PARTICLES.length].char, PARTICLES[(particleIndex+7)%PARTICLES.length].char, PARTICLES[(particleIndex+11)%PARTICLES.length].char].sort();
   const learningPoints = learned.length + learnedWords.length + completed.length;
@@ -302,7 +319,7 @@ export default function Home() {
     : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
-    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kosakata:"Kosakata", tatabahasa:"Tata bahasa", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan", situasi:"Situasi nyata"
+    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Tata bahasa", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan", situasi:"Situasi nyata"
   };
 
   return (
@@ -314,7 +331,7 @@ export default function Home() {
         </button>
         <nav aria-label="Navigasi utama">
           <button className={view === "kurikulum" ? "active" : ""} onClick={() => setView("kurikulum")}>Jalur</button>
-          <button className={view === "belajar" || view === "latihan" ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
+          <button className={["belajar","latihan","kuis","kuisgambar"].includes(view) ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
           <button className={["kosakata","tatabahasa","partikel","kanji","situasi"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>Materi</button>
         </nav>
         <div className="streak" title="Rangkaian belajar"><span>火</span><strong>{streak}</strong> hari</div>
@@ -335,6 +352,7 @@ export default function Home() {
           <div className="course-menu" aria-label="Pilih materi belajar">
             <button className={view === "kurikulum" ? "selected" : ""} onClick={() => setView("kurikulum")}><span>道</span><i>Jalur belajar</i></button>
             <button className={view === "belajar" || view === "latihan" ? "selected" : ""} onClick={() => setView("belajar")}><span>あ</span><i>Kana & menulis</i></button>
+            <button className={view === "kuisgambar" ? "selected" : ""} onClick={() => {setView("kuisgambar");setComicAnswer(null)}}><span>絵</span><i>Kuis gambar</i></button>
             <button className={view === "kosakata" ? "selected" : ""} onClick={() => setView("kosakata")}><span>言</span><i>Kosakata</i></button>
             <button className={view === "tatabahasa" ? "selected" : ""} onClick={() => setView("tatabahasa")}><span>文</span><i>Tata bahasa</i></button>
             <button className={view === "partikel" ? "selected" : ""} onClick={() => setView("partikel")}><span>助</span><i>Partikel</i></button>
@@ -480,6 +498,11 @@ export default function Home() {
                 <div className="guided-coach"><small>MODE KELAS · ULANGI 3 KALI</small><h3>{active.romaji}</h3><p>{activeBreakdown}</p><div><button className="primary" onClick={()=>speak(active)}>♪ Dengar pelafalan</button><button className="outline" onClick={()=>{speak(active);setToast("Ucapkan keras-keras setelah suara berhenti");window.setTimeout(()=>setToast(""),1800)}}>Saya ikuti</button></div></div>
                 <div className="guided-example"><small>COBA BACA</small><b>{example[0]}</b><span>{example[1]}</span><p>{example[2]}</p><button onClick={()=>speakJapanese(example[0])}>♪ Dengarkan kata</button></div>
               </div>
+              <div className="guided-nav" aria-label="Navigasi huruf kelas">
+                <button className="outline" onClick={()=>setSelected((selected - 1 + kana.length) % kana.length)} disabled={selected === 0}>← Kembali</button>
+                <span><b>{selected + 1}</b> / {kana.length}<small>{active.char} · {active.romaji}</small></span>
+                <button className="primary" onClick={()=>setSelected((selected + 1) % kana.length)}>{selected === kana.length - 1 ? "Ulang dari awal ↻" : "Berikutnya →"}</button>
+              </div>
             </article>
             <div className="learn-layout">
               <div className="kana-chart">
@@ -507,14 +530,26 @@ export default function Home() {
                 </div>
               </article>
             </div>
-            {script === "hiragana" && <section className="comic-quiz" aria-label="Kuis hiragana bergambar">
-              <div className="comic-heading"><div><small>KUIS ADEGAN · BACA TANPA ROMAJI</small><h3>Mana gambar untuk 「いぬ」?</h3><p>Dengarkan kata, lalu pilih adegan yang tepat.</p></div><button className="outline" onClick={()=>speakJapanese("いぬ")}>♪ Putar suara</button></div>
-              <div className="comic-options">
-                {[{id:"kasa",image:"/comic/kasa.webp",alt:"Payung Jepang di tengah hujan"},{id:"inu",image:"/comic/inu.webp",alt:"Anjing Shiba Inu di rumah"},{id:"sakana",image:"/comic/sakana.webp",alt:"Seekor ikan di dalam air"}].map((scene)=><button key={scene.id} className={comicAnswer===scene.id?(scene.id==="inu"?"correct":"wrong"):""} onClick={()=>setComicAnswer(scene.id)}><img src={scene.image} alt={scene.alt}/><span>{comicAnswer===scene.id?(scene.id==="inu"?"Benar! いぬ = anjing":"Belum tepat, coba lagi"):"Pilih adegan"}</span></button>)}
-              </div>
-              {comicAnswer && <div className={`comic-feedback ${comicAnswer==="inu"?"correct":""}`}>{comicAnswer==="inu"?"Bagus! Pecah bunyinya: い (i) + ぬ (nu) = いぬ (inu).":"Petunjuk: cari makhluk yang biasa menjadi hewan peliharaan."}</div>}
-            </section>}
           </>}
+
+          {view === "kuisgambar" && <div className="comic-quiz-view">
+            {!comicFinished ? <>
+              <div className="section-title comic-title"><div><p>KUIS KANA BERGAMBAR</p><h2>Baca, dengar, pilih adegannya</h2></div><span>6 soal · gambar orisinal · tanpa romaji saat memilih</span></div>
+              <div className="comic-session-meta"><span>SOAL {comicIndex + 1} DARI {COMIC_SCENES.length}</span><strong>{comicScore} benar</strong></div>
+              <div className="quiz-progress"><i style={{width:`${((comicIndex + 1) / COMIC_SCENES.length) * 100}%`}} /></div>
+              <section className="comic-quiz" aria-label="Kuis kana bergambar">
+                <div className="comic-heading"><div><small>BACA TANPA ROMAJI</small><h3>Mana gambar untuk 「{activeComic.word}」?</h3><p>Dengarkan bunyinya bila perlu, lalu pilih satu adegan.</p></div><button className="outline" onClick={()=>speakJapanese(activeComic.word)}>♪ Putar suara</button></div>
+                <div className="comic-options">
+                  {comicChoices.map((scene)=><button key={scene.id} disabled={comicAnswer!==null} className={comicAnswer===scene.id?(scene.id===activeComic.id?"correct":"wrong"):comicAnswer&&scene.id===activeComic.id?"correct":""} onClick={()=>{setComicAnswer(scene.id);if(scene.id===activeComic.id)setComicCorrect((items)=>items.includes(comicIndex)?items:[...items,comicIndex])}}><img src={scene.image} alt={scene.alt}/><span>{comicAnswer?(scene.id===activeComic.id?`${scene.word} = ${scene.meaning}`:scene.id===comicAnswer?"Belum tepat":"Pilihan lain"):"Pilih adegan"}</span></button>)}
+                </div>
+                {comicAnswer && <div className={`comic-feedback ${comicAnswer===activeComic.id?"correct":""}`}>{comicAnswer===activeComic.id?`Benar! ${activeComic.word} dibaca ${activeComic.romaji}, artinya ${activeComic.meaning}.`:`Belum tepat. Petunjuk: ${activeComic.hint}`}</div>}
+              </section>
+              <div className="comic-navigation">
+                <button className="outline" disabled={comicIndex===0} onClick={()=>{setComicIndex((index)=>Math.max(0,index-1));setComicAnswer(null)}}>← Kembali</button>
+                <button className="primary" disabled={!comicAnswer} onClick={()=>{if(comicIndex===COMIC_SCENES.length-1){setComicFinished(true);markComplete("comic-quiz","Kuis gambar selesai!")}else{setComicIndex((index)=>index+1);setComicAnswer(null)}}}>{comicIndex===COMIC_SCENES.length-1?"Lihat hasil":"Soal berikutnya →"}</button>
+              </div>
+            </> : <div className="result-card comic-result"><span className="result-seal">絵</span><p>SESI GAMBAR SELESAI</p><h2>{comicScore}/{COMIC_SCENES.length} benar</h2><p>{comicScore===COMIC_SCENES.length?"Sempurna! Kamu bisa menghubungkan bunyi kana dengan makna nyata.":"Bagus. Ulangi adegan yang masih tertukar agar bunyi dan maknanya melekat."}</p><button className="primary" onClick={()=>{setComicIndex(0);setComicCorrect([]);setComicAnswer(null);setComicFinished(false)}}>Ulangi 6 soal</button><button className="outline" onClick={()=>setView("belajar")}>Kembali ke Kana</button></div>}
+          </div>}
 
           {view === "latihan" && <div className="writing-view">
             <div className="section-title"><div><p>LATIHAN MENULIS</p><h2>Tulis {active.char}</h2></div><span>Ikuti bentuk samar, lalu ulangi tanpa panduan.</span></div>
