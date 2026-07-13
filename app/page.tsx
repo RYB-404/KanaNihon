@@ -95,6 +95,7 @@ function shuffle<T>(items: T[]) {
 export default function Home() {
   const [script, setScript] = useState<Script>("hiragana");
   const [kanaSet, setKanaSet] = useState<KanaSet>("basic");
+  const [comicAnswer, setComicAnswer] = useState<string | null>(null);
   const [view, setView] = useState<View>("kurikulum");
   const [selected, setSelected] = useState(0);
   const [learned, setLearned] = useState<string[]>([]);
@@ -293,6 +294,12 @@ export default function Home() {
   const particleQuestion = activeParticle.uses[0].example.replace(activeParticle.char,"＿＿");
   const particleChoices = [activeParticle.char, PARTICLES[(particleIndex+3)%PARTICLES.length].char, PARTICLES[(particleIndex+7)%PARTICLES.length].char, PARTICLES[(particleIndex+11)%PARTICLES.length].char].sort();
   const learningPoints = learned.length + learnedWords.length + completed.length;
+  const voicedBase: Record<string,string> = {が:"か",ぎ:"き",ぐ:"く",げ:"け",ご:"こ",ざ:"さ",じ:"し",ず:"す",ぜ:"せ",ぞ:"そ",だ:"た",ぢ:"ち",づ:"つ",で:"て",ど:"と",ば:"は",び:"ひ",ぶ:"ふ",べ:"へ",ぼ:"ほ",ぱ:"は",ぴ:"ひ",ぷ:"ふ",ぺ:"へ",ぽ:"ほ"};
+  const hiraganaActive = script === "katakana" ? [...active.char].map(c=>String.fromCodePoint(c.codePointAt(0)!-0x60)).join("") : active.char;
+  const activeBreakdown = kanaSet === "contracted" ? `${[...active.char][0]} + ${[...active.char][1]} kecil = ${active.char}`
+    : kanaSet === "voiced" ? `${script === "hiragana" ? voicedBase[hiraganaActive] : String.fromCodePoint(voicedBase[hiraganaActive]?.codePointAt(0)!+0x60)} + ${hiraganaActive.startsWith("ぱ")||hiraganaActive.startsWith("ぴ")||hiraganaActive.startsWith("ぷ")||hiraganaActive.startsWith("ぺ")||hiraganaActive.startsWith("ぽ") ? "゜maru" : "゛tenten"} = ${active.char}`
+    : kanaSet === "special" ? KANA_SET_INFO.special.hint
+    : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
     kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kosakata:"Kosakata", tatabahasa:"Tata bahasa", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan", situasi:"Situasi nyata"
@@ -466,6 +473,14 @@ export default function Home() {
               {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((set)=><button role="tab" aria-selected={kanaSet===set} className={kanaSet===set?"selected":""} key={set} onClick={()=>{setKanaSet(set);setSelected(0)}}><b>{KANA_SET_INFO[set].label}</b><span>{set === "basic" ? "あ" : set === "voiced" ? "が" : set === "contracted" ? "きゃ" : "っ"}</span></button>)}
             </div>
             <div className="kana-set-note"><b>{KANA_SET_INFO[kanaSet].label}</b><span>{KANA_SET_INFO[kanaSet].hint}</span></div>
+            <article className="guided-kana" aria-label="Mode kelas hiragana">
+              <div className="guided-steps"><span className="active">1 · LIHAT</span><span>2 · DENGAR</span><span>3 · IKUTI</span><span>4 · GABUNGKAN</span></div>
+              <div className="guided-main">
+                <div className="guided-symbol">{active.char}</div>
+                <div className="guided-coach"><small>MODE KELAS · ULANGI 3 KALI</small><h3>{active.romaji}</h3><p>{activeBreakdown}</p><div><button className="primary" onClick={()=>speak(active)}>♪ Dengar pelafalan</button><button className="outline" onClick={()=>{speak(active);setToast("Ucapkan keras-keras setelah suara berhenti");window.setTimeout(()=>setToast(""),1800)}}>Saya ikuti</button></div></div>
+                <div className="guided-example"><small>COBA BACA</small><b>{example[0]}</b><span>{example[1]}</span><p>{example[2]}</p><button onClick={()=>speakJapanese(example[0])}>♪ Dengarkan kata</button></div>
+              </div>
+            </article>
             <div className="learn-layout">
               <div className="kana-chart">
                 {groups.map((group) => <div className="kana-row" key={group.name}>
@@ -492,6 +507,13 @@ export default function Home() {
                 </div>
               </article>
             </div>
+            {script === "hiragana" && <section className="comic-quiz" aria-label="Kuis hiragana bergambar">
+              <div className="comic-heading"><div><small>KUIS ADEGAN · BACA TANPA ROMAJI</small><h3>Mana gambar untuk 「いぬ」?</h3><p>Dengarkan kata, lalu pilih adegan yang tepat.</p></div><button className="outline" onClick={()=>speakJapanese("いぬ")}>♪ Putar suara</button></div>
+              <div className="comic-options">
+                {[{id:"kasa",image:"/comic/kasa.webp",alt:"Payung Jepang di tengah hujan"},{id:"inu",image:"/comic/inu.webp",alt:"Anjing Shiba Inu di rumah"},{id:"sakana",image:"/comic/sakana.webp",alt:"Seekor ikan di dalam air"}].map((scene)=><button key={scene.id} className={comicAnswer===scene.id?(scene.id==="inu"?"correct":"wrong"):""} onClick={()=>setComicAnswer(scene.id)}><img src={scene.image} alt={scene.alt}/><span>{comicAnswer===scene.id?(scene.id==="inu"?"Benar! いぬ = anjing":"Belum tepat, coba lagi"):"Pilih adegan"}</span></button>)}
+              </div>
+              {comicAnswer && <div className={`comic-feedback ${comicAnswer==="inu"?"correct":""}`}>{comicAnswer==="inu"?"Bagus! Pecah bunyinya: い (i) + ぬ (nu) = いぬ (inu).":"Petunjuk: cari makhluk yang biasa menjadi hewan peliharaan."}</div>}
+            </section>}
           </>}
 
           {view === "latihan" && <div className="writing-view">
