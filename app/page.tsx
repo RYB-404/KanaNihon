@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CONVERSATIONS, GRAMMAR, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
+import { BEGINNER_HELP, CONVERSATIONS, GRAMMAR, KAIWA_VIDEOS, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
 type KanaSet = "basic" | "voiced" | "contracted" | "special";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya";
 
 type ComicScene = { id: string; word: string; romaji: string; meaning: string; image: string; alt: string; hint: string };
 
@@ -134,12 +134,17 @@ export default function Home() {
   const [learnedWords, setLearnedWords] = useState<string[]>([]);
   const [wordIndex, setWordIndex] = useState(0);
   const [wordCategory, setWordCategory] = useState("Semua");
+  const [wordLevel, setWordLevel] = useState<"Semua"|"N5"|"N4">("Semua");
   const [showWord, setShowWord] = useState(false);
   const [grammarIndex, setGrammarIndex] = useState(0);
+  const [grammarLevel, setGrammarLevel] = useState<"Semua"|"N5"|"N4">("Semua");
   const [kanjiIndex, setKanjiIndex] = useState(0);
   const [listeningIndex, setListeningIndex] = useState(0);
   const [showListeningText, setShowListeningText] = useState(false);
   const [conversationIndex, setConversationIndex] = useState(0);
+  const [kaiwaIndex, setKaiwaIndex] = useState(0);
+  const [helpIndex, setHelpIndex] = useState(0);
+  const [helpQuery, setHelpQuery] = useState("");
   const [particleIndex, setParticleIndex] = useState(0);
   const [particleAnswer, setParticleAnswer] = useState<string | null>(null);
   const [practicalIndex, setPracticalIndex] = useState(0);
@@ -304,13 +309,20 @@ export default function Home() {
   const groups = useMemo(() => kanaSet === "basic"
     ? GROUPS.map((name, i) => ({name,items:kana.slice(GROUP_STARTS[i], GROUP_STARTS[i + 1] ?? kana.length),start:GROUP_STARTS[i]}))
     : Array.from({length:Math.ceil(kana.length / 5)},(_,i)=>({name:String(i+1).padStart(2,"0"),items:kana.slice(i*5,i*5+5),start:i*5})), [kana,kanaSet]);
-  const wordCategories = ["Semua", ...Array.from(new Set(VOCABULARY.map((word) => word.category)))];
-  const filteredWords = wordCategory === "Semua" ? VOCABULARY : VOCABULARY.filter((word) => word.category === wordCategory);
+  const levelWords = VOCABULARY.filter((word)=>wordLevel === "Semua" || (word.level ?? "N5") === wordLevel);
+  const wordCategories = ["Semua", ...Array.from(new Set(levelWords.map((word) => word.category)))];
+  const filteredWords = levelWords.filter((word) => wordCategory === "Semua" || word.category === wordCategory);
   const activeWord = filteredWords[wordIndex % filteredWords.length];
   const activeGrammar = GRAMMAR[grammarIndex];
+  const filteredGrammar = GRAMMAR.map((lesson,index)=>({lesson,index})).filter(({lesson})=>grammarLevel === "Semua" || lesson.level === grammarLevel);
   const activeKanji = KANJI[kanjiIndex];
   const activeListening = LISTENING[listeningIndex];
   const activeConversation = CONVERSATIONS[conversationIndex];
+  const activeKaiwa = KAIWA_VIDEOS[kaiwaIndex];
+  const normalizedHelpQuery = helpQuery.toLowerCase().replace(/\bwa\b/g,"は").replace(/\bga\b/g,"が").replace(/\bni\b/g,"に").replace(/\bde\b/g,"で").replace(/\bwo\b|\bo\b/g,"を").replace(/\bte\b/g,"て");
+  const helpTokens = normalizedHelpQuery.split(/\s+/).filter((token)=>token && !["dan","atau","apa","bedanya","kapan","pakai","cara"].includes(token));
+  const helpResults = BEGINNER_HELP.filter((item)=>{const haystack=`${item.id} ${item.question} ${item.short} ${item.answer} ${item.category}`.toLowerCase();return helpTokens.every((token)=>haystack.includes(token))});
+  const activeHelp = helpResults[helpIndex % Math.max(1,helpResults.length)] ?? BEGINNER_HELP[0];
   const activeParticle = PARTICLES[particleIndex];
   const activePractical = PRACTICAL_LESSONS[practicalIndex];
   const comicMode = comicIndex < COMIC_SCENES.length ? "word-to-image" : "image-to-word";
@@ -329,7 +341,7 @@ export default function Home() {
     : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
-    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Tata bahasa", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Percakapan", situasi:"Situasi nyata"
+    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Bunpou", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Kaiwa", situasi:"Situasi nyata", tanya:"Tanya & paham"
   };
 
   return (
@@ -342,7 +354,7 @@ export default function Home() {
         <nav aria-label="Navigasi utama">
           <button className={view === "kurikulum" ? "active" : ""} onClick={() => setView("kurikulum")}>Jalur</button>
           <button className={["belajar","latihan","kuis","kuisgambar"].includes(view) ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
-          <button className={["kosakata","tatabahasa","partikel","kanji","situasi"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>Materi</button>
+          <button className={["kosakata","tatabahasa","partikel","kanji","situasi","mendengar","percakapan","tanya"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>N5–N4</button>
         </nav>
         <div className="streak" title="Rangkaian belajar"><span>火</span><strong>{streak}</strong> hari</div>
       </header>
@@ -351,7 +363,7 @@ export default function Home() {
         <div>
           <p className="eyebrow">LANGKAH KECIL, SETIAP HARI</p>
           <h1>Dari huruf pertama.<br/><em>Sampai benar-benar paham.</em></h1>
-          <p className="hero-copy">Satu tempat untuk belajar aksara, kosakata, tata bahasa, kanji, menyimak, dan percakapan—bertahap dari nol menuju mahir.</p>
+          <p className="hero-copy">Satu tempat untuk belajar aksara, kosakata, bunpou, kanji, menyimak, dan kaiwa—bertahap dari nol sampai siap N5–N4.</p>
         </div>
         <div className="hero-kana" aria-hidden="true"><span>あ</span><i>ア</i><b>か</b></div>
       </section>
@@ -364,12 +376,13 @@ export default function Home() {
             <button className={view === "belajar" || view === "latihan" ? "selected" : ""} onClick={() => setView("belajar")}><span>あ</span><i>Kana & menulis</i></button>
             <button className={view === "kuisgambar" ? "selected" : ""} onClick={() => {setView("kuisgambar");setComicAnswer(null)}}><span>絵</span><i>Kuis gambar</i></button>
             <button className={view === "kosakata" ? "selected" : ""} onClick={() => setView("kosakata")}><span>言</span><i>Kosakata</i></button>
-            <button className={view === "tatabahasa" ? "selected" : ""} onClick={() => setView("tatabahasa")}><span>文</span><i>Tata bahasa</i></button>
+            <button className={view === "tatabahasa" ? "selected" : ""} onClick={() => setView("tatabahasa")}><span>文</span><i>Bunpou 文法</i></button>
             <button className={view === "partikel" ? "selected" : ""} onClick={() => setView("partikel")}><span>助</span><i>Partikel</i></button>
             <button className={view === "kanji" ? "selected" : ""} onClick={() => setView("kanji")}><span>字</span><i>Kanji</i></button>
             <button className={view === "mendengar" ? "selected" : ""} onClick={() => setView("mendengar")}><span>聴</span><i>Mendengar</i></button>
-            <button className={view === "percakapan" ? "selected" : ""} onClick={() => setView("percakapan")}><span>話</span><i>Percakapan</i></button>
+            <button className={view === "percakapan" ? "selected" : ""} onClick={() => setView("percakapan")}><span>会</span><i>Kaiwa video</i></button>
             <button className={view === "situasi" ? "selected" : ""} onClick={() => setView("situasi")}><span>旅</span><i>Situasi nyata</i></button>
+            <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
           </div>
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
             <button className={script === "hiragana" ? "selected" : ""} onClick={() => switchScript("hiragana")}><span>あ</span> Hiragana</button>
@@ -390,7 +403,7 @@ export default function Home() {
             <div className="section-title"><div><p>KURIKULUM LENGKAP</p><h2>Jalur menuju mahir</h2></div><span>Mulai dari fondasi, naik sesuai kemampuanmu.</span></div>
             <div className="overview-grid">
               <div><small>AKTIVITAS SELESAI</small><strong>{learningPoints}</strong><span>tersimpan di perangkat</span></div>
-              <div><small>KOSAKATA DIKUASAI</small><strong>{learnedWords.length}<i>/30</i></strong><span>target paket pemula</span></div>
+              <div><small>KOSAKATA DIKUASAI</small><strong>{learnedWords.length}<i>/{VOCABULARY.length}</i></strong><span>paket inti N5–N4</span></div>
               <div><small>KANA DIKUASAI</small><strong>{learned.length}<i>/{TOTAL_KANA_FORMS}</i></strong><span>Dasar, variasi, dan kombinasi</span></div>
             </div>
             <article className="continue-card">
@@ -398,7 +411,7 @@ export default function Home() {
               <div><small>LANJUTKAN HARI INI · 10 MENIT</small><h3>Fondasi: kuasai bunyi dan aksara</h3><p>Baca 5 kana, pelajari 5 kosakata, lalu tutup dengan satu latihan listening.</p></div>
               <button className="primary" onClick={() => setView(learned.length < 20 ? "belajar" : "kosakata")}>Mulai sesi →</button>
             </article>
-            <div className="roadmap-heading"><div><p>ROADMAP KEMAMPUAN</p><h3>Enam tahap, satu arah yang jelas</h3></div><span>Dasar</span><i></i><span>Mahir</span></div>
+            <div className="roadmap-heading"><div><p>ROADMAP KEMAMPUAN</p><h3>Enam tahap sampai siap N4</h3></div><span>Dasar</span><i></i><span>N4</span></div>
             <div className="roadmap-list">
               {ROADMAP.map((stage, index) => <article className="roadmap-card" key={stage.level} style={{"--stage":stage.accent} as React.CSSProperties}>
                 <div className="roadmap-index">{String(index + 1).padStart(2,"0")}</div>
@@ -411,11 +424,12 @@ export default function Home() {
           </div>}
 
           {view === "kosakata" && <div className="vocab-view">
-            <div className="section-title"><div><p>KOSAKATA PEMULA</p><h2>Bangun perbendaharaan kata</h2></div><span>Dengar, tebak, lalu lihat penggunaannya.</span></div>
+            <div className="section-title"><div><p>KOSAKATA N5–N4 · {VOCABULARY.length} KATA</p><h2>Bangun perbendaharaan kata</h2></div><span>Dengar, tebak, lalu lihat penggunaannya.</span></div>
+            <div className="level-tabs" aria-label="Pilih tingkat kosakata">{(["Semua","N5","N4"] as const).map((level)=><button key={level} className={wordLevel===level?"selected":""} onClick={()=>{setWordLevel(level);setWordCategory("Semua");setWordIndex(0);setShowWord(false)}}>{level === "Semua" ? "Semua level" : level}</button>)}</div>
             <div className="category-tabs">{wordCategories.map((category) => <button key={category} className={wordCategory === category ? "selected" : ""} onClick={() => {setWordCategory(category);setWordIndex(0);setShowWord(false)}}>{category}</button>)}</div>
             <div className="vocab-layout">
               <article className={`flashcard ${showWord ? "revealed" : ""}`} onClick={() => setShowWord(true)}>
-                <div className="card-label"><span>{activeWord.category}</span><b>{wordIndex + 1}/{filteredWords.length}</b></div>
+                <div className="card-label"><span>{activeWord.level ?? "N5"} · {activeWord.category}</span><b>{wordIndex + 1}/{filteredWords.length}</b></div>
                 <button className="sound-round vocab-sound" onClick={(event) => {event.stopPropagation();speakJapanese(activeWord.japanese)}} aria-label={`Dengarkan ${activeWord.japanese}`}>♪</button>
                 <div className="vocab-japanese">{activeWord.japanese}</div>
                 <div className="vocab-reading">{activeWord.reading}</div>
@@ -431,9 +445,11 @@ export default function Home() {
           </div>}
 
           {view === "tatabahasa" && <div className="grammar-view">
-            <div className="section-title"><div><p>TATA BAHASA</p><h2>Susun kalimat dengan yakin</h2></div><span>Pahami fungsi, bukan sekadar menghafal rumus.</span></div>
+            <div className="section-title"><div><p>文法 · BUNPOU N5–N4</p><h2>Susun kalimat dengan yakin</h2></div><span>{GRAMMAR.length} pola dengan fungsi, contoh, dan jebakan umum.</span></div>
+            <div className="bunpou-intro"><span>文法</span><div><b>Bunpou bukan kumpulan rumus.</b><p>Pelajari maksud pembicara, bentuk yang menempel, lalu bedakan dengan pola yang terlihat mirip. Dengarkan setiap contoh sebelum menandainya paham.</p></div><strong>{completed.filter((id)=>id.startsWith("grammar-")).length}/{GRAMMAR.length}</strong></div>
+            <div className="level-tabs" aria-label="Pilih tingkat bunpou">{(["Semua","N5","N4"] as const).map((level)=><button key={level} className={grammarLevel===level?"selected":""} onClick={()=>{setGrammarLevel(level);const first=GRAMMAR.findIndex((item)=>level==="Semua"||item.level===level);if(first>=0)setGrammarIndex(first)}}>{level === "Semua" ? "Semua pola" : `Bunpou ${level}`}</button>)}</div>
             <div className="lesson-layout">
-              <div className="lesson-list">{GRAMMAR.map((lesson,index) => <button key={lesson.id} className={grammarIndex === index ? "selected" : ""} onClick={() => setGrammarIndex(index)}><span>{lesson.level}</span><div><b>{lesson.title}</b><small>{lesson.meaning}</small></div>{completed.includes(`grammar-${lesson.id}`) && <i>✓</i>}</button>)}</div>
+              <div className="lesson-list">{filteredGrammar.map(({lesson,index}) => <button key={lesson.id} className={grammarIndex === index ? "selected" : ""} onClick={() => setGrammarIndex(index)}><span>{lesson.level}</span><div><b>{lesson.title}</b><small>{lesson.meaning}</small></div>{completed.includes(`grammar-${lesson.id}`) && <i>✓</i>}</button>)}</div>
               <article className="grammar-card">
                 <div className="grammar-badge">{activeGrammar.level} · POLA {grammarIndex + 1}</div><h2>{activeGrammar.title}</h2><p className="grammar-meaning">{activeGrammar.meaning}</p>
                 <div className="pattern-box"><small>POLA</small><strong>{activeGrammar.pattern}</strong></div>
@@ -479,9 +495,22 @@ export default function Home() {
           </div>}
 
           {view === "percakapan" && <div className="conversation-view">
-            <div className="section-title"><div><p>PERCAKAPAN PRAKTIS</p><h2>Berlatih untuk situasi nyata</h2></div><span>Dengar peran A, lalu ucapkan bagian B.</span></div>
+            <div className="section-title"><div><p>会話 · KAIWA VIDEO</p><h2>Lihat cara orang benar-benar berbicara</h2></div><span>Video resmi Japan Foundation · level N5–N4.</span></div>
+            <div className="kaiwa-source-note"><span>映像</span><div><b>Tonton → tangkap maksud → tirukan → ganti dengan ceritamu.</b><p>Jangan mengejar setiap kata pada tontonan pertama. Fokus pada situasi, ekspresi wajah, dan satu frasa yang bisa langsung kamu pakai.</p></div><a href={activeKaiwa.source} target="_blank" rel="noreferrer">Sumber resmi ↗</a></div>
+            <div className="kaiwa-tabs">{KAIWA_VIDEOS.map((video,index)=><button key={video.id} className={kaiwaIndex===index?"selected":""} onClick={()=>setKaiwaIndex(index)}><span>{video.level}</span><b>{video.title}</b><small>{video.scene}</small></button>)}</div>
+            <article className="kaiwa-player">
+              <div className="video-shell"><video key={activeKaiwa.id} controls preload="metadata" poster={activeKaiwa.poster}><source src={activeKaiwa.video} type="video/mp4"/>Browser kamu tidak mendukung video HTML5.</video><div className="video-credit">© The Japan Foundation · Erin&apos;s Challenge</div></div>
+              <div className="kaiwa-study"><span className="grammar-badge">{activeKaiwa.level} · {activeKaiwa.lesson}</span><h2>{activeKaiwa.title}</h2><p>{activeKaiwa.goal}</p><div className="kaiwa-phrases"><small>FRASE YANG DITANGKAP</small>{activeKaiwa.phrases.map((phrase)=><button key={phrase.jp} onClick={()=>speakJapanese(phrase.jp)}><span>♪</span><b>{phrase.jp}</b><em>{phrase.meaning}</em></button>)}</div><div className="shadowing-task"><small>TANTANGAN SHADOWING</small><p>{activeKaiwa.challenge}</p></div><div className="kaiwa-links"><a className="outline" href={activeKaiwa.script} target="_blank" rel="noreferrer">Naskah Bahasa Indonesia ↗</a><button className="primary" onClick={()=>markComplete(`kaiwa-${activeKaiwa.id}`,"Latihan kaiwa selesai!")}>{completed.includes(`kaiwa-${activeKaiwa.id}`)?"Kaiwa selesai ✓":"Saya sudah menirukan"}</button></div></div>
+            </article>
+            <div className="subsection-title"><div><small>LANJUTKAN TANPA VIDEO</small><h3>Role-play dua arah</h3></div><span>Putar peran A, lalu jawab sebagai B.</span></div>
             <div className="scenario-tabs">{CONVERSATIONS.map((scenario,index) => <button className={conversationIndex === index ? "selected" : ""} onClick={() => setConversationIndex(index)} key={scenario.id}><span>{scenario.place}</span><b>{scenario.title}</b></button>)}</div>
             <article className="dialogue-card"><div className="dialogue-head"><div><small>ROLE-PLAY</small><h2>{activeConversation.title}</h2></div><button className="outline" onClick={() => activeConversation.lines.forEach((line,index) => window.setTimeout(() => speakJapanese(line.jp,.78),index*2600))}>♪ Putar semua</button></div><div className="dialogue-lines">{activeConversation.lines.map((line,index) => <div className={line.who === "A" ? "speaker-a" : "speaker-b"} key={`${line.who}-${index}`}><span>{line.who}</span><button onClick={() => speakJapanese(line.jp)} aria-label="Dengarkan kalimat">♪</button><p><b>{line.jp}</b><em>{line.romaji}</em><small>{line.id}</small></p></div>)}</div><div className="role-tip"><b>Giliranmu</b><p>Putar kalimat A, jeda, lalu ucapkan kalimat B tanpa membaca romaji.</p><button className="primary" onClick={() => markComplete(`conversation-${activeConversation.id}`,"Skenario percakapan selesai!")}>{completed.includes(`conversation-${activeConversation.id}`) ? "Latihan selesai ✓" : "Saya sudah role-play"}</button></div></article>
+          </div>}
+
+          {view === "tanya" && <div className="help-view">
+            <div className="section-title"><div><p>KETIKA BINGUNG, MULAI DI SINI</p><h2>Tanya & benar-benar paham</h2></div><span>Jawaban untuk kebingungan yang paling sering dialami pemula.</span></div>
+            <div className="help-search"><span>?</span><div><label htmlFor="help-query">Apa yang belum kamu mengerti?</label><input id="help-query" value={helpQuery} onChange={(event)=>{setHelpQuery(event.target.value);setHelpIndex(0)}} placeholder="Contoh: bedanya wa dan ga, ni atau de, bentuk te..."/></div><b>{helpResults.length} jawaban</b></div>
+            {helpResults.length > 0 ? <div className="help-layout"><div className="help-list">{helpResults.map((item,index)=><button key={item.id} className={helpIndex===index?"selected":""} onClick={()=>setHelpIndex(index)}><span>{item.category}</span><b>{item.question}</b><small>{item.short}</small></button>)}</div><article className="help-answer"><span className="grammar-badge">{activeHelp.category} · PENJELASAN PEMULA</span><h2>{activeHelp.question}</h2><p className="help-short">{activeHelp.short}</p><div className="answer-core"><small>JAWABAN INTI</small><p>{activeHelp.answer}</p></div><div className="help-examples"><small>LIHAT PERBEDAANNYA</small>{activeHelp.examples.map((example)=><button key={example.jp} onClick={()=>speakJapanese(example.jp)}><span>♪</span><b>{example.jp}</b><em>{example.meaning}</em></button>)}</div><div className="related-path"><span>LANJUT BELAJAR</span><p>{activeHelp.related}</p></div><button className="primary" onClick={()=>markComplete(`help-${activeHelp.id}`,"Kebingungan ini sudah kamu pecahkan!")}>{completed.includes(`help-${activeHelp.id}`)?"Sudah paham ✓":"Sekarang saya paham"}</button></article></div> : <div className="empty-help"><span>迷</span><h3>Belum ada jawaban yang cocok</h3><p>Coba kata yang lebih pendek seperti “partikel”, “bentuk te”, “angka”, atau “percakapan”.</p><button className="outline" onClick={()=>setHelpQuery("")}>Lihat semua pertanyaan</button></div>}
           </div>}
 
           {view === "situasi" && <div className="practical-view">
