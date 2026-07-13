@@ -2,11 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BEGINNER_HELP, CONVERSATIONS, GRAMMAR, KAIWA_VIDEOS, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
+import { JLPT_DRILLS, READING_LESSONS, SPEAKING_PROMPTS } from "./n4-data";
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
 type KanaSet = "basic" | "voiced" | "contracted" | "special";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio";
+type LexiconItem = {id:string;word:string;reading:string;meaning:string;level:"N5"|"N4"};
+type ReviewStat = {due:number;interval:number;ease:number;right:number;wrong:number};
 
 type ComicScene = { id: string; word: string; romaji: string; meaning: string; image: string; alt: string; hint: string };
 
@@ -148,10 +151,28 @@ export default function Home() {
   const [particleIndex, setParticleIndex] = useState(0);
   const [particleAnswer, setParticleAnswer] = useState<string | null>(null);
   const [practicalIndex, setPracticalIndex] = useState(0);
+  const [lexicon, setLexicon] = useState<LexiconItem[]>([]);
+  const [lexiconQuery, setLexiconQuery] = useState("");
+  const [lexiconLevel, setLexiconLevel] = useState<"Semua"|"N5"|"N4">("Semua");
+  const [readingIndex, setReadingIndex] = useState(0);
+  const [readingAnswer, setReadingAnswer] = useState<string | null>(null);
+  const [reviewStats, setReviewStats] = useState<Record<string,ReviewStat>>({});
+  const [reviewClock] = useState(()=>Date.now());
+  const [reviewReveal, setReviewReveal] = useState(false);
+  const [examLevel, setExamLevel] = useState<"N5"|"N4">("N5");
+  const [examIndex, setExamIndex] = useState(0);
+  const [examAnswers, setExamAnswers] = useState<Record<string,string>>({});
+  const [examFinished, setExamFinished] = useState(false);
+  const [speakingIndex, setSpeakingIndex] = useState(0);
+  const [recording, setRecording] = useState(false);
+  const [recordingUrl, setRecordingUrl] = useState("");
+  const [recordingError, setRecordingError] = useState("");
   const [audioStatus, setAudioStatus] = useState<"ready"|"playing"|"error">("ready");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const recorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const kanaCollections = script === "hiragana"
     ? {basic:HIRAGANA,voiced:HIRAGANA_VOICED,contracted:HIRAGANA_CONTRACTED,special:HIRAGANA_SPECIAL}
     : {basic:KATAKANA,voiced:KATAKANA_VOICED,contracted:KATAKANA_CONTRACTED,special:KATAKANA_SPECIAL};
@@ -166,12 +187,17 @@ export default function Home() {
       if (typeof saved.streak === "number") setStreak(saved.streak);
       if (Array.isArray(saved.completed)) setCompleted(saved.completed);
       if (Array.isArray(saved.learnedWords)) setLearnedWords(saved.learnedWords);
+      if (saved.reviewStats && typeof saved.reviewStats === "object") setReviewStats(saved.reviewStats);
     } catch { /* mulai baru */ }
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("kananihon-progress", JSON.stringify({ learned, streak, completed, learnedWords }));
-  }, [learned, streak, completed, learnedWords]);
+    localStorage.setItem("kananihon-progress", JSON.stringify({ learned, streak, completed, learnedWords, reviewStats }));
+  }, [learned, streak, completed, learnedWords, reviewStats]);
+
+  useEffect(() => {
+    fetch("/data/jlpt-vocabulary.json").then((response)=>response.json()).then((data)=>setLexicon(data.items ?? [])).catch(()=>setLexicon([]));
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -306,6 +332,30 @@ export default function Home() {
     canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
   }
 
+  function gradeReview(rating: "ulang"|"sulit"|"bagus"|"mudah") {
+    if (!activeReview) return;
+    const old = reviewStats[activeReview.id] ?? {due:0,interval:0,ease:2.5,right:0,wrong:0};
+    const days = rating === "ulang" ? 0 : rating === "sulit" ? Math.max(1,old.interval) : rating === "bagus" ? Math.max(2,old.interval*2 || 2) : Math.max(4,old.interval*3 || 4);
+    setReviewStats({...reviewStats,[activeReview.id]:{due:Date.now()+(rating === "ulang" ? 10*60*1000 : days*86400000),interval:days,ease:Math.max(1.3,old.ease+(rating === "mudah"?.15:rating === "sulit"?-.15:0)),right:old.right+(rating === "ulang"?0:1),wrong:old.wrong+(rating === "ulang"?1:0)}});
+    setReviewReveal(false);
+  }
+
+  async function startRecording() {
+    try {
+      setRecordingError("");
+      const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+      streamRef.current = stream;
+      const recorder = new MediaRecorder(stream);
+      const chunks: BlobPart[] = [];
+      recorder.ondataavailable = (event)=>chunks.push(event.data);
+      recorder.onstop = ()=>{ if (recordingUrl) URL.revokeObjectURL(recordingUrl); setRecordingUrl(URL.createObjectURL(new Blob(chunks,{type:recorder.mimeType}))); stream.getTracks().forEach((track)=>track.stop()); };
+      recorderRef.current = recorder;
+      recorder.start(); setRecording(true);
+    } catch { setRecordingError("Mikrofon belum diizinkan. Aktifkan izin mikrofon di browser lalu coba lagi."); }
+  }
+
+  function stopRecording() { recorderRef.current?.stop(); setRecording(false); }
+
   const groups = useMemo(() => kanaSet === "basic"
     ? GROUPS.map((name, i) => ({name,items:kana.slice(GROUP_STARTS[i], GROUP_STARTS[i + 1] ?? kana.length),start:GROUP_STARTS[i]}))
     : Array.from({length:Math.ceil(kana.length / 5)},(_,i)=>({name:String(i+1).padStart(2,"0"),items:kana.slice(i*5,i*5+5),start:i*5})), [kana,kanaSet]);
@@ -325,6 +375,15 @@ export default function Home() {
   const activeHelp = helpResults[helpIndex % Math.max(1,helpResults.length)] ?? BEGINNER_HELP[0];
   const activeParticle = PARTICLES[particleIndex];
   const activePractical = PRACTICAL_LESSONS[practicalIndex];
+  const activeReading = READING_LESSONS[readingIndex];
+  const activeSpeaking = SPEAKING_PROMPTS[speakingIndex];
+  const filteredLexicon = lexicon.filter((item)=>(lexiconLevel === "Semua" || item.level === lexiconLevel) && (!lexiconQuery || `${item.word} ${item.reading} ${item.meaning}`.toLowerCase().includes(lexiconQuery.toLowerCase()))).slice(0,80);
+  const reviewItems = [...VOCABULARY.map((item)=>({id:`v-${item.id}`,kind:"Kosakata",front:item.japanese,reading:item.reading,back:item.meaning})),...GRAMMAR.map((item)=>({id:`g-${item.id}`,kind:"Bunpou",front:item.title,reading:item.pattern,back:item.meaning}))];
+  const dueReviewItems = reviewItems.filter((item)=>(reviewStats[item.id]?.due ?? 0)<=reviewClock).sort((a,b)=>(reviewStats[a.id]?.due ?? 0)-(reviewStats[b.id]?.due ?? 0));
+  const activeReview = dueReviewItems[0];
+  const examQuestions = JLPT_DRILLS.filter((item)=>item.level===examLevel);
+  const activeExam = examQuestions[examIndex];
+  const examScore = examQuestions.filter((item)=>examAnswers[item.id]===item.answer).length;
   const comicMode = comicIndex < COMIC_SCENES.length ? "word-to-image" : "image-to-word";
   const activeComic = COMIC_SCENES[comicIndex % COMIC_SCENES.length];
   const comicScore = comicCorrect.length;
@@ -341,7 +400,7 @@ export default function Home() {
     : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
-    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Bunpou", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Kaiwa", situasi:"Situasi nyata", tanya:"Tanya & paham"
+    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Bunpou", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Kaiwa", situasi:"Situasi nyata", tanya:"Tanya & paham", membaca:"Membaca", review:"Review pintar", ujian:"Simulasi JLPT", studio:"Studio bicara"
   };
 
   return (
@@ -382,6 +441,10 @@ export default function Home() {
             <button className={view === "mendengar" ? "selected" : ""} onClick={() => setView("mendengar")}><span>聴</span><i>Mendengar</i></button>
             <button className={view === "percakapan" ? "selected" : ""} onClick={() => setView("percakapan")}><span>会</span><i>Kaiwa video</i></button>
             <button className={view === "situasi" ? "selected" : ""} onClick={() => setView("situasi")}><span>旅</span><i>Situasi nyata</i></button>
+            <button className={view === "membaca" ? "selected" : ""} onClick={() => {setView("membaca");setReadingAnswer(null)}}><span>読</span><i>Membaca</i></button>
+            <button className={view === "studio" ? "selected" : ""} onClick={() => setView("studio")}><span>声</span><i>Studio bicara</i></button>
+            <button className={view === "review" ? "selected" : ""} onClick={() => setView("review")}><span>復</span><i>Review pintar</i></button>
+            <button className={view === "ujian" ? "selected" : ""} onClick={() => setView("ujian")}><span>試</span><i>Simulasi JLPT</i></button>
             <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
           </div>
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
@@ -423,6 +486,27 @@ export default function Home() {
             <div className="source-box"><div><p>DIRANCANG DARI SUMBER TEPERCAYA</p><h3>Kurikulum berbasis aktivitas nyata</h3><span>Strukturnya mengikuti kemampuan membaca dan mendengar JLPT, lalu dilengkapi latihan percakapan, menulis, kosakata, dan situasi sehari-hari.</span></div><div className="source-links">{SOURCES.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.name}><b>{source.name}</b><span>{source.note}</span></a>)}</div></div>
           </div>}
 
+          {view === "membaca" && <div className="reading-view">
+            <div className="section-title"><div><p>DOKKAI N5–N4</p><h2>Belajar membaca informasi nyata</h2></div><span>{READING_LESSONS.length} teks: pesan, jadwal, iklan, email, dan pengumuman.</span></div>
+            <div className="reading-layout"><div className="reading-list">{READING_LESSONS.map((lesson,index)=><button key={lesson.id} className={readingIndex===index?"selected":""} onClick={()=>{setReadingIndex(index);setReadingAnswer(null)}}><span>{lesson.level} · {lesson.kind}</span><b>{lesson.title}</b><small>{lesson.canDo}</small></button>)}</div><article className="reading-card"><div className="can-do"><b>できる · Target</b><span>{activeReading.canDo}</span></div><pre>{activeReading.text}</pre><button className="outline" onClick={()=>speakJapanese(activeReading.text,.76)}>♪ Dengarkan teks</button><details><summary>Buka cara baca & arti</summary><p>{activeReading.reading}</p><p>{activeReading.meaning}</p></details><div className="reading-vocab">{activeReading.vocabulary.map((word)=><span key={word.word}><b>{word.word}</b> {word.reading} · {word.meaning}</span>)}</div><div className="reading-question"><small>CEK PEMAHAMAN</small><h3>{activeReading.question}</h3>{activeReading.choices.map((choice)=><button key={choice} className={readingAnswer===choice?(choice===activeReading.answer?"correct":"wrong"):""} onClick={()=>setReadingAnswer(choice)}>{choice}</button>)}{readingAnswer&&<p><b>{readingAnswer===activeReading.answer?"Benar.":`Jawaban: ${activeReading.answer}.`}</b> {activeReading.explanation}</p>}</div><div className="module-nav"><button className="outline" disabled={readingIndex===0} onClick={()=>{setReadingIndex(readingIndex-1);setReadingAnswer(null)}}>← Kembali</button><button className="primary" onClick={()=>{markComplete(`reading-${activeReading.id}`);setReadingIndex((readingIndex+1)%READING_LESSONS.length);setReadingAnswer(null)}}>Selesai & lanjut →</button></div></article></div>
+          </div>}
+
+          {view === "review" && <div className="review-view">
+            <div className="section-title"><div><p>SPACED REPETITION</p><h2>Review sebelum lupa</h2></div><span>{dueReviewItems.length} kartu jatuh tempo · progres tersimpan otomatis.</span></div>
+            {activeReview?<article className={`review-card ${reviewReveal?"revealed":""}`}><span>{activeReview.kind}</span><h2>{activeReview.front}</h2><p>{activeReview.reading}</p>{reviewReveal?<><div className="review-answer">{activeReview.back}</div><div className="review-grades"><button onClick={()=>gradeReview("ulang")}>Ulang<small>10 menit</small></button><button onClick={()=>gradeReview("sulit")}>Sulit<small>1 hari</small></button><button onClick={()=>gradeReview("bagus")}>Bagus<small>bertahap</small></button><button onClick={()=>gradeReview("mudah")}>Mudah<small>lebih lama</small></button></div></>:<button className="primary" onClick={()=>setReviewReveal(true)}>Tampilkan jawaban</button>}</article>:<div className="review-empty"><span>復</span><h2>Review hari ini selesai</h2><p>Kartu berikutnya akan muncul saat hampir perlu diingat kembali.</p><button className="outline" onClick={()=>setReviewStats({})}>Latih semua lagi</button></div>}
+          </div>}
+
+          {view === "ujian" && <div className="exam-view">
+            <div className="section-title"><div><p>FORMAT SOAL JLPT</p><h2>Simulasi mini N5–N4</h2></div><span>Kosakata, bunpou, susun kalimat, membaca, dan listening.</span></div>
+            <div className="level-tabs">{(["N5","N4"] as const).map((level)=><button key={level} className={examLevel===level?"selected":""} onClick={()=>{setExamLevel(level);setExamIndex(0);setExamAnswers({});setExamFinished(false)}}>Simulasi {level}</button>)}</div>
+            {!examFinished?<article className="exam-card"><div className="exam-meta"><span>{activeExam.skill} · soal {examIndex+1}/{examQuestions.length}</span><strong>{examLevel}</strong></div>{activeExam.audio&&<button className="sound-round" onClick={()=>speakJapanese(activeExam.audio!)}>♪</button>}<h2>{activeExam.prompt}</h2>{activeExam.context&&<p className="exam-context">{activeExam.context}</p>}<div className="exam-choices">{activeExam.choices.map((choice)=><button key={choice} className={examAnswers[activeExam.id]===choice?"selected":""} onClick={()=>setExamAnswers({...examAnswers,[activeExam.id]:choice})}>{choice}</button>)}</div><div className="module-nav"><button className="outline" disabled={examIndex===0} onClick={()=>setExamIndex(examIndex-1)}>← Kembali</button><button className="primary" disabled={!examAnswers[activeExam.id]} onClick={()=>examIndex===examQuestions.length-1?setExamFinished(true):setExamIndex(examIndex+1)}>{examIndex===examQuestions.length-1?"Nilai ujian":"Berikutnya →"}</button></div></article>:<article className="exam-result"><span>合格?</span><h2>{examScore}/{examQuestions.length} benar</h2><p>{examScore/examQuestions.length>=.7?"Fondasi kamu sudah baik. Review penjelasan lalu lanjutkan latihan penuh.":"Belum masalah—lihat pembahasan dan masukkan bagian lemah ke review."}</p>{examQuestions.map((item)=><div key={item.id} className={examAnswers[item.id]===item.answer?"correct":"wrong"}><b>{item.skill}: {item.prompt}</b><span>Jawabanmu: {examAnswers[item.id]} · Benar: {item.answer}</span><p>{item.explanation}</p></div>)}<button className="primary" onClick={()=>{setExamIndex(0);setExamAnswers({});setExamFinished(false)}}>Ulangi simulasi</button></article>}
+          </div>}
+
+          {view === "studio" && <div className="studio-view">
+            <div className="section-title"><div><p>OUTPUT & SHADOWING</p><h2>Studio latihan bicara</h2></div><span>Dengar model, rekam suara sendiri, lalu bandingkan.</span></div>
+            <div className="studio-layout"><div className="speaking-list">{SPEAKING_PROMPTS.map((prompt,index)=><button key={prompt.id} className={speakingIndex===index?"selected":""} onClick={()=>{setSpeakingIndex(index);setRecordingUrl("")}}><span>{prompt.level}</span><b>{prompt.title}</b></button>)}</div><article className="speaking-card"><span className="grammar-badge">{activeSpeaking.level} · SHADOWING</span><h2>{activeSpeaking.title}</h2><div className="model-speech"><small>MODEL</small><p>{activeSpeaking.model}</p><button className="outline" onClick={()=>speakJapanese(activeSpeaking.model,.72)}>♪ Putar contoh</button></div><div className="speaking-task"><small>GILIRANMU</small><p>{activeSpeaking.task}</p><ul>{activeSpeaking.checks.map((check)=><li key={check}>{check}</li>)}</ul></div><div className="record-controls">{recording?<button className="primary recording" onClick={stopRecording}>■ Hentikan rekaman</button>:<button className="primary" onClick={startRecording}>● Mulai rekam</button>}{recordingUrl&&<audio controls src={recordingUrl}/>}</div>{recordingError&&<p className="record-error">{recordingError}</p>}<button className="outline" onClick={()=>markComplete(`speaking-${activeSpeaking.id}`,"Latihan bicara disimpan sebagai selesai!")}>Tandai latihan selesai</button></article></div>
+          </div>}
+
           {view === "kosakata" && <div className="vocab-view">
             <div className="section-title"><div><p>KOSAKATA N5–N4 · {VOCABULARY.length} KATA</p><h2>Bangun perbendaharaan kata</h2></div><span>Dengar, tebak, lalu lihat penggunaannya.</span></div>
             <div className="level-tabs" aria-label="Pilih tingkat kosakata">{(["Semua","N5","N4"] as const).map((level)=><button key={level} className={wordLevel===level?"selected":""} onClick={()=>{setWordLevel(level);setWordCategory("Semua");setWordIndex(0);setShowWord(false)}}>{level === "Semua" ? "Semua level" : level}</button>)}</div>
@@ -443,6 +527,8 @@ export default function Home() {
             </div>
             <div className="word-bank"><h3>Bank kata · {filteredWords.length} kata</h3><div>{filteredWords.map((word, index) => <button className={learnedWords.includes(word.id) ? "learned" : ""} key={word.id} onClick={() => {setWordIndex(index);setShowWord(true)}}><b>{word.japanese}</b><span>{word.meaning}</span></button>)}</div></div>
           </div>}
+
+            {view === "kosakata" && <section className="lexicon"><div><p>REFERENSI KOSAKATA JLPT</p><h3>{lexicon.length.toLocaleString("id-ID")} kata N5–N4</h3><span>Paket inti di atas berbahasa Indonesia; kamus tambahan ini memakai arti sumber berbahasa Inggris.</span></div><div className="lexicon-tools"><input aria-label="Cari kamus" value={lexiconQuery} onChange={(event)=>setLexiconQuery(event.target.value)} placeholder="Cari Jepang, cara baca, atau arti…"/><select value={lexiconLevel} onChange={(event)=>setLexiconLevel(event.target.value as typeof lexiconLevel)}><option>Semua</option><option>N5</option><option>N4</option></select></div><div className="lexicon-grid">{filteredLexicon.map((item)=><button key={item.id} onClick={()=>speakJapanese(item.word)}><b>{item.word}</b><span>{item.reading}</span><small>{item.level} · {item.meaning}</small></button>)}</div><small>Data referensi: open-anki-jlpt-decks (MIT). Maksimal 80 hasil ditampilkan agar tetap ringan.</small></section>}
 
           {view === "tatabahasa" && <div className="grammar-view">
             <div className="section-title"><div><p>文法 · BUNPOU N5–N4</p><h2>Susun kalimat dengan yakin</h2></div><span>{GRAMMAR.length} pola dengan fungsi, contoh, dan jebakan umum.</span></div>

@@ -47,3 +47,19 @@ test("ships detailed beginner data and official kaiwa sources", async () => {
   assert.match(data, /Apa bedanya は dan が\?/);
   assert.match(layout, /100\+ kosakata/);
 });
+
+test("ships the N4 practice suite and licensed vocabulary reference", async () => {
+  const [page, n4, lexicon, license] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/n4-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../public/data/jlpt-vocabulary.json", import.meta.url), "utf8"),
+    readFile(new URL("../public/data/jlpt-vocabulary-LICENSE.txt", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /Review sebelum lupa/);
+  assert.match(page, /Simulasi mini N5–N4/);
+  assert.match(page, /Studio latihan bicara/);
+  assert.match(n4, /READING_LESSONS/);
+  assert.match(n4, /SPEAKING_PROMPTS/);
+  assert.equal(JSON.parse(lexicon).items.length, 1384);
+  assert.match(license, /MIT License/);
+});
