@@ -30,7 +30,7 @@ test("server-renders the complete N5-N4 learning shell", async () => {
   assert.doesNotMatch(html, /codex-preview|Your site is taking shape|Codex is building/i);
 });
 
-test("ships detailed beginner data and official kaiwa sources", async () => {
+test("ships detailed beginner data and Indonesian-subtitled animated kaiwa", async () => {
   const [page, data, layout] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/learning-data.ts", import.meta.url), "utf8"),
@@ -42,8 +42,10 @@ test("ships detailed beginner data and official kaiwa sources", async () => {
   assert.match(page, /normalizedHelpQuery/);
   assert.match(data, /VOCABULARY\.push\(\.\.\.EXTRA_VOCABULARY\)/);
   assert.match(data, /GRAMMAR\.push\(/);
-  assert.match(data, /www\.erin\.jpf\.go\.jp\/movie\/01\/01-ba_high\.mp4/);
-  assert.match(data, /erin_lesson01_basic_script_id\.pdf/);
+  assert.match(data, /youtubeId:"9yq_F9R2c-o"/);
+  assert.match(data, /youtubeId:"hAcEa9zrsM4"/);
+  assert.match(page, /youtube-nocookie\.com\/embed/);
+  assert.match(page, /terjemahan Indonesia/);
   assert.match(data, /Apa bedanya は dan が\?/);
   assert.match(layout, /100\+ kosakata/);
 });
@@ -65,7 +67,10 @@ test("ships the N4 practice suite and licensed vocabulary reference", async () =
   assert.match(particles, /KESALAHAN|mistake/);
   assert.doesNotMatch(page, /♪|♫|♬/);
   assert.doesNotMatch(stroke, /<!DOCTYPE/);
-  assert.equal(JSON.parse(lexicon).items.length, 1384);
+  const vocabulary = JSON.parse(lexicon);
+  assert.equal(vocabulary.items.length, 1384);
+  assert.equal(vocabulary.items.filter((item) => item.meaning && item.meaningEn).length, 1384);
+  assert.equal(vocabulary.items.find((item) => item.id === "lex-2").meaning, "bertemu, melihat");
   assert.match(license, /MIT License/);
 });
 
