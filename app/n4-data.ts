@@ -17,7 +17,7 @@ export const READING_LESSONS: ReadingLesson[] = [
   {id:"trip",level:"N4",kind:"Blog",title:"Perjalanan singkat ke Kyoto",canDo:"Memahami pengalaman dan pendapat",text:"先月、家族と京都へ行きました。京都は二回目でしたが、秋に行ったのは初めてです。紅葉がとてもきれいで、写真をたくさん撮りました。有名なお寺は人が多すぎたので、朝早く行ったほうがいいと思います。次は春の京都も見てみたいです。",reading:"Sengetsu, kazoku to Kyouto e ikimashita. Kyouto wa nikaime deshita ga, aki ni itta no wa hajimete desu. Kouyou ga totemo kirei de, shashin o takusan torimashita. Yuumei na otera wa hito ga oosugita node, asa hayaku itta hou ga ii to omoimasu.",meaning:"Bulan lalu saya pergi ke Kyoto bersama keluarga. Itu kedua kalinya ke Kyoto, tetapi pertama kali pada musim gugur. Daun musim gugur sangat indah dan saya mengambil banyak foto. Kuil terkenal terlalu ramai, jadi menurut saya sebaiknya datang pagi-pagi. Berikutnya saya juga ingin mencoba melihat Kyoto pada musim semi.",vocabulary:[{word:"紅葉",reading:"こうよう",meaning:"daun musim gugur"},{word:"二回目",reading:"にかいめ",meaning:"kali kedua"}],question:"Saran penulis untuk mengunjungi kuil terkenal adalah…",choices:["Datang saat musim panas","Datang pagi-pagi","Jangan mengambil foto","Pergi sendirian"],answer:"Datang pagi-pagi",explanation:"朝早く行ったほうがいいと思います adalah saran datang lebih awal."},
 ];
 
-export type Drill = {id:string;level:"N5"|"N4";skill:"Kosakata"|"Bunpou"|"Susun kalimat"|"Membaca"|"Listening";prompt:string;context?:string;choices:string[];answer:string;explanation:string;audio?:string};
+export type Drill = {id:string;level:"N5"|"N4";difficulty?:"Mudah"|"Sedang"|"Sulit";skill:"Kosakata"|"Bunpou"|"Susun kalimat"|"Membaca"|"Listening";prompt:string;context?:string;choices:string[];answer:string;explanation:string;audio?:string};
 export const JLPT_DRILLS: Drill[] = [
   {id:"v1",level:"N5",skill:"Kosakata",prompt:"「あさ」の漢字はどれですか。",choices:["朝","昼","夜","先"],answer:"朝",explanation:"朝（あさ） berarti pagi."},
   {id:"v2",level:"N5",skill:"Kosakata",prompt:"毎日、図書館で本を（　）。",choices:["読みます","聞きます","飲みます","会います"],answer:"読みます",explanation:"本を読む berarti membaca buku."},
@@ -37,6 +37,31 @@ export const JLPT_DRILLS: Drill[] = [
   {id:"l2",level:"N4",skill:"Listening",prompt:"Dengarkan alasan pembicara.",audio:"電車が遅れたので、約束の時間に間に合いませんでした。",choices:["Bangun terlambat","Kereta terlambat","Lupa janji","Salah stasiun"],answer:"Kereta terlambat",explanation:"電車が遅れたので menyatakan sebabnya kereta terlambat."},
 ];
 
+JLPT_DRILLS.push(
+  {id:"e1",level:"N5",difficulty:"Mudah",skill:"Bunpou",prompt:"わたしは 毎朝 コーヒー（　）飲みます。",choices:["を","に","で","が"],answer:"を",explanation:"Minuman yang dikenai tindakan 飲みます ditandai を."},
+  {id:"e2",level:"N5",difficulty:"Mudah",skill:"Kosakata",prompt:"きょうは 雨です。かさを（　）。",choices:["もちます","ききます","あいます","よみます"],answer:"もちます",explanation:"Saat hujan kita membawa payung: かさを持ちます."},
+  {id:"e3",level:"N5",difficulty:"Mudah",skill:"Bunpou",prompt:"学校は 八時（　）始まります。",choices:["に","を","へ","と"],answer:"に",explanation:"Jam yang spesifik memakai partikel に."},
+  {id:"e4",level:"N5",difficulty:"Mudah",skill:"Kosakata",prompt:"『たかい』の反対はどれですか。",choices:["やすい","ひくい","おそい","ちかい"],answer:"やすい",explanation:"Untuk harga, lawan 高い adalah 安い."},
+  {id:"e5",level:"N4",difficulty:"Mudah",skill:"Bunpou",prompt:"窓を（　）ください。",choices:["開けて","開いて","開ける","開けた"],answer:"開けて",explanation:"Permintaan sopan memakai bentuk て + ください."},
+  {id:"e6",level:"N4",difficulty:"Mudah",skill:"Kosakata",prompt:"電車に乗る前に、切符を（　）。",choices:["買います","借ります","返します","消します"],answer:"買います",explanation:"Sebelum naik kereta, membeli tiket."},
+  {id:"m1",level:"N5",difficulty:"Sedang",skill:"Bunpou",prompt:"日曜日、友だち（　）映画を見ました。",choices:["と","を","へ","まで"],answer:"と",explanation:"Partner melakukan kegiatan bersama ditandai と."},
+  {id:"m2",level:"N5",difficulty:"Sedang",skill:"Susun kalimat",prompt:"Susun menjadi kalimat yang benar.",context:"[①で　②勉強します　③図書館　④を　⑤日本語]",choices:["③①⑤④②","⑤①③④②","③④⑤①②","⑤④②③①"],answer:"③①⑤④②",explanation:"図書館で日本語を勉強します。 Tempat aksi memakai で dan objek memakai を."},
+  {id:"m3",level:"N5",difficulty:"Sedang",skill:"Bunpou",prompt:"A：だれ（　）来ましたか。 B：田中さんです。",choices:["が","は","を","も"],answer:"が",explanation:"Kata tanya yang mencari siapa memakai が."},
+  {id:"m4",level:"N5",difficulty:"Sedang",skill:"Membaca",prompt:"『本日は休みです。明日は九時から営業します。』Kapan toko buka?",choices:["Hari ini pukul 9","Besok pukul 9","Besok tutup","Hari ini siang"],answer:"Besok pukul 9",explanation:"明日は九時から営業します berarti besok buka mulai pukul sembilan."},
+  {id:"m5",level:"N4",difficulty:"Sedang",skill:"Bunpou",prompt:"日本へ行く（　）、日本語を勉強しています。",choices:["ために","ながら","そうに","ばかり"],answer:"ために",explanation:"V bentuk kamus + ために menyatakan tujuan."},
+  {id:"m6",level:"N4",difficulty:"Sedang",skill:"Bunpou",prompt:"音楽を聞き（　）、宿題をします。",choices:["ながら","まで","しか","ので"],answer:"ながら",explanation:"ながら menghubungkan dua kegiatan yang dilakukan bersamaan."},
+  {id:"m7",level:"N4",difficulty:"Sedang",skill:"Kosakata",prompt:"会議の時間が変わったので、みんなに（　）してください。",choices:["連絡","案内","運転","用意"],answer:"連絡",explanation:"連絡する berarti menghubungi/memberi kabar."},
+  {id:"m8",level:"N4",difficulty:"Sedang",skill:"Membaca",prompt:"『この薬は食事のあとで、一日二回飲んでください。』Cara minumnya?",choices:["Sebelum makan sekali","Sesudah makan dua kali sehari","Saat sakit saja","Dua tablet sebelum tidur"],answer:"Sesudah makan dua kali sehari",explanation:"食事のあとで = setelah makan; 一日二回 = dua kali sehari."},
+  {id:"h1",level:"N5",difficulty:"Sulit",skill:"Bunpou",prompt:"A：駅まで何（　）行きますか。 B：バスで行きます。",choices:["で","に","を","が"],answer:"で",explanation:"何で menanyakan sarana; jawaban バスで memakai で."},
+  {id:"h2",level:"N5",difficulty:"Sulit",skill:"Susun kalimat",prompt:"Susun menjadi kalimat yang benar.",context:"[①から　②五時　③九時　④まで　⑤働きます]",choices:["③①②④⑤","②①③④⑤","③④②①⑤","①③④②⑤"],answer:"③①②④⑤",explanation:"九時から五時まで働きます。 から adalah awal, まで batas akhir."},
+  {id:"h3",level:"N5",difficulty:"Sulit",skill:"Membaca",prompt:"『山田さんへ。三時に会議室へ来てください。資料は机の上にあります。』Apa yang harus dilakukan Yamada?",choices:["Mengambil meja","Datang ke ruang rapat pukul 3","Membawa kursi","Pulang pukul 3"],answer:"Datang ke ruang rapat pukul 3",explanation:"三時に会議室へ来てください adalah instruksi utama."},
+  {id:"h4",level:"N4",difficulty:"Sulit",skill:"Bunpou",prompt:"雨が降る（　）しれませんから、傘を持って行きましょう。",choices:["かも","しか","だけ","ほど"],answer:"かも",explanation:"かもしれません menyatakan kemungkinan."},
+  {id:"h5",level:"N4",difficulty:"Sulit",skill:"Bunpou",prompt:"先生に作文を直して（　）。",choices:["もらいました","あげました","くれました","しまいました"],answer:"もらいました",explanation:"Pembicara menerima bantuan dari guru: 先生に〜てもらいました."},
+  {id:"h6",level:"N4",difficulty:"Sulit",skill:"Kosakata",prompt:"道が込んでいたので、約束の時間に（　）ませんでした。",choices:["間に合い","見つかり","決まり","続き"],answer:"間に合い",explanation:"時間に間に合う berarti tiba tepat waktu."},
+  {id:"h7",level:"N4",difficulty:"Sulit",skill:"Susun kalimat",prompt:"Susun menjadi kalimat yang benar.",context:"[①うちに　②日本に　③行きたいです　④いる]",choices:["②④①③","④②①③","②①④③","①②④③"],answer:"②④①③",explanation:"日本にいるうちに行きたいです: ingin pergi selagi berada di Jepang."},
+  {id:"h8",level:"N4",difficulty:"Sulit",skill:"Membaca",prompt:"『参加する方は木曜日までに受付で名前を書いてください。当日は筆記用具だけ持ってきてください。』Apa yang benar?",choices:["Daftar setelah Kamis","Tulis nama di resepsionis paling lambat Kamis","Bawa makanan","Tidak perlu mendaftar"],answer:"Tulis nama di resepsionis paling lambat Kamis",explanation:"木曜日までに menunjukkan tenggat, 受付で menunjukkan tempat melakukan pendaftaran."}
+);
+
 export const SPEAKING_PROMPTS = [
   {id:"intro",level:"N5",title:"Perkenalan 20 detik",model:"はじめまして。アリです。インドネシアから来ました。日本語を勉強しています。どうぞよろしくお願いします。",task:"Ganti nama, asal, dan kegiatan dengan informasi tentang dirimu.",checks:["Nama terdengar jelas","Gunakan 〜から来ました","Akhiri dengan よろしくお願いします"]},
   {id:"routine",level:"N5",title:"Rutinitas pagi",model:"毎朝六時に起きます。七時に朝ご飯を食べて、八時に学校へ行きます。",task:"Ceritakan tiga kegiatan pagimu dengan waktu.",checks:["Gunakan に untuk waktu","Urutkan dengan bentuk て","Ucapkan angka dengan jelas"]},
@@ -45,4 +70,3 @@ export const SPEAKING_PROMPTS = [
   {id:"plan",level:"N4",title:"Rencana akhir pekan",model:"週末は友達と映画を見るつもりです。時間があったら、レストランにも行きたいです。",task:"Jelaskan rencana dan satu hal yang ingin dilakukan jika ada waktu.",checks:["Gunakan つもりです","Gunakan 〜たら","Gunakan 〜たいです"]},
   {id:"opinion",level:"N4",title:"Pendapat sederhana",model:"日本語は難しいですが、面白いと思います。毎日少しずつ勉強したほうがいいです。",task:"Sampaikan pendapat dan satu saran tentang belajar bahasa Jepang.",checks:["Gunakan と思います","Hubungkan dengan が","Berikan saran 〜たほうがいい"]},
 ];
-

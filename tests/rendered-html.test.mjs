@@ -81,3 +81,21 @@ test("ships the NHK Indonesian companion hub without copying media", async () =>
   assert.match(nhk, /Sensei Oshiete/);
   assert.match(nhk, /Kata tiruan bunyi/);
 });
+
+test("ships working audio toggles and tiered written quizzes", async () => {
+  const [page, data, css] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/n4-data.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /playingAudioKey===key&&audioStatus==="playing"/);
+  assert.match(page, /audioRef\.current\?\.pause\(\)/);
+  assert.match(page, /speechSynthesis\.cancel\(\)/);
+  assert.match(page, /\["Mudah","Sedang","Sulit"\]/);
+  assert.match(page, /item\.difficulty \?\? "Mudah"/);
+  assert.match(data, /difficulty:"Mudah"/);
+  assert.match(data, /difficulty:"Sedang"/);
+  assert.match(data, /difficulty:"Sulit"/);
+  assert.match(data, /Susun menjadi kalimat yang benar/);
+  assert.match(css, /button\.playing:after\{content:"Ⅱ"/);
+});
