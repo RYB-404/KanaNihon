@@ -4,11 +4,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { BEGINNER_HELP, CONVERSATIONS, GRAMMAR, KAIWA_VIDEOS, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
 import { JLPT_DRILLS, READING_LESSONS, SPEAKING_PROMPTS } from "./n4-data";
 import { PARTICLE_GUIDES, PARTICLE_SOURCES } from "./particle-guides";
+import { NHK_LESSONS, NHK_RESOURCES } from "./nhk-data";
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
 type KanaSet = "basic" | "voiced" | "contracted" | "special";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio" | "nhk";
 type LexiconItem = {id:string;word:string;reading:string;meaning:string;level:"N5"|"N4"};
 type ReviewStat = {due:number;interval:number;ease:number;right:number;wrong:number};
 
@@ -165,6 +166,7 @@ export default function Home() {
   const [examAnswers, setExamAnswers] = useState<Record<string,string>>({});
   const [examFinished, setExamFinished] = useState(false);
   const [speakingIndex, setSpeakingIndex] = useState(0);
+  const [nhkLessonIndex, setNhkLessonIndex] = useState(0);
   const [recording, setRecording] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
   const [recordingError, setRecordingError] = useState("");
@@ -379,6 +381,7 @@ export default function Home() {
   const activePractical = PRACTICAL_LESSONS[practicalIndex];
   const activeReading = READING_LESSONS[readingIndex];
   const activeSpeaking = SPEAKING_PROMPTS[speakingIndex];
+  const activeNhkLesson = NHK_LESSONS[nhkLessonIndex];
   const filteredLexicon = lexicon.filter((item)=>(lexiconLevel === "Semua" || item.level === lexiconLevel) && (!lexiconQuery || `${item.word} ${item.reading} ${item.meaning}`.toLowerCase().includes(lexiconQuery.toLowerCase()))).slice(0,80);
   const reviewItems = [...VOCABULARY.map((item)=>({id:`v-${item.id}`,kind:"Kosakata",front:item.japanese,reading:item.reading,back:item.meaning})),...GRAMMAR.map((item)=>({id:`g-${item.id}`,kind:"Bunpou",front:item.title,reading:item.pattern,back:item.meaning}))];
   const dueReviewItems = reviewItems.filter((item)=>(reviewStats[item.id]?.due ?? 0)<=reviewClock).sort((a,b)=>(reviewStats[a.id]?.due ?? 0)-(reviewStats[b.id]?.due ?? 0));
@@ -402,7 +405,7 @@ export default function Home() {
     : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
   const viewTitle: Record<View, string> = {
-    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Bunpou", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Kaiwa", situasi:"Situasi nyata", tanya:"Tanya & paham", membaca:"Membaca", review:"Review pintar", ujian:"Simulasi JLPT", studio:"Studio bicara"
+    kurikulum:"Jalur belajar", belajar:"Kana", latihan:"Menulis", kuis:"Kuis kana", kuisgambar:"Kuis gambar", kosakata:"Kosakata", tatabahasa:"Bunpou", partikel:"Partikel", kanji:"Kanji", mendengar:"Mendengar", percakapan:"Kaiwa", situasi:"Situasi nyata", tanya:"Tanya & paham", membaca:"Membaca", review:"Review pintar", ujian:"Simulasi JLPT", studio:"Studio bicara", nhk:"Pusat NHK"
   };
 
   return (
@@ -415,7 +418,7 @@ export default function Home() {
         <nav aria-label="Navigasi utama">
           <button className={view === "kurikulum" ? "active" : ""} onClick={() => setView("kurikulum")}>Jalur</button>
           <button className={["belajar","latihan","kuis","kuisgambar"].includes(view) ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
-          <button className={["kosakata","tatabahasa","partikel","kanji","situasi","mendengar","percakapan","tanya"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>N5–N4</button>
+          <button className={["kosakata","tatabahasa","partikel","kanji","situasi","mendengar","percakapan","tanya","membaca","review","ujian","studio","nhk"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>N5–N4</button>
         </nav>
         <div className="streak" title="Rangkaian belajar"><span>火</span><strong>{streak}</strong> hari</div>
       </header>
@@ -447,6 +450,7 @@ export default function Home() {
             <button className={view === "studio" ? "selected" : ""} onClick={() => setView("studio")}><span>声</span><i>Studio bicara</i></button>
             <button className={view === "review" ? "selected" : ""} onClick={() => setView("review")}><span>復</span><i>Review pintar</i></button>
             <button className={view === "ujian" ? "selected" : ""} onClick={() => setView("ujian")}><span>試</span><i>Simulasi JLPT</i></button>
+            <button className={view === "nhk" ? "selected" : ""} onClick={() => setView("nhk")}><span>放</span><i>Pusat NHK</i></button>
             <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
           </div>
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
@@ -486,6 +490,15 @@ export default function Home() {
               </article>)}
             </div>
             <div className="source-box"><div><p>DIRANCANG DARI SUMBER TEPERCAYA</p><h3>Kurikulum berbasis aktivitas nyata</h3><span>Strukturnya mengikuti kemampuan membaca dan mendengar JLPT, lalu dilengkapi latihan percakapan, menulis, kosakata, dan situasi sehari-hari.</span></div><div className="source-links">{SOURCES.map((source) => <a href={source.url} target="_blank" rel="noreferrer" key={source.name}><b>{source.name}</b><span>{source.note}</span></a>)}</div></div>
+          </div>}
+
+          {view === "nhk" && <div className="nhk-view">
+            <div className="section-title"><div><p>NHK WORLD-JAPAN · BAHASA INDONESIA</p><h2>Belajar lewat drama, audio, dan situasi</h2></div><span>48 pelajaran resmi · sekitar 10 menit per episode · akses gratis.</span></div>
+            <div className="nhk-credit"><span>放送</span><div><b>Pendamping resmi untuk jalur N5–N4 KanaNihon</b><p>KanaNihon membantu memilih urutan dan mencatat progres. Audio, gambar, naskah, dan PDF tetap disajikan langsung oleh NHK WORLD-JAPAN serta tunduk pada hak cipta NHK.</p></div><a href="https://www3.nhk.or.jp/nhkworld/lesson/indonesian/" target="_blank" rel="noreferrer">Buka situs NHK ↗</a></div>
+            <div className="nhk-resources">{NHK_RESOURCES.map((resource)=><a key={resource.title} href={resource.url} target="_blank" rel="noreferrer"><span>{resource.icon}</span><div><b>{resource.title}</b><p>{resource.description}</p></div><i>↗</i></a>)}</div>
+            <div className="subsection-title"><div><small>JALUR 48 EPISODE</small><h3>Dengar → baca naskah → tirukan → cek grammar</h3></div><span>{completed.filter((id)=>id.startsWith("nhk-")).length}/48 selesai</span></div>
+            <div className="nhk-layout"><div className="nhk-lesson-list">{NHK_LESSONS.map((lesson,index)=><button key={lesson.number} className={`${nhkLessonIndex===index?"selected":""} ${completed.includes(`nhk-${lesson.number}`)?"learned":""}`} onClick={()=>setNhkLessonIndex(index)}><span>{String(lesson.number).padStart(2,"0")}</span><div><b>{lesson.level}</b><small>{lesson.phase}</small></div><i>{completed.includes(`nhk-${lesson.number}`)?"✓":"→"}</i></button>)}</div><article className="nhk-player"><div className="nhk-image"><img src={activeNhkLesson.image} alt={`Ilustrasi resmi NHK pelajaran ${activeNhkLesson.number}`} referrerPolicy="no-referrer"/><span>© NHK WORLD-JAPAN</span></div><div className="nhk-player-copy"><span className="grammar-badge">{activeNhkLesson.level} · PELAJARAN {activeNhkLesson.number}</span><h2>{activeNhkLesson.phase}</h2><p>{activeNhkLesson.goal}</p><audio key={activeNhkLesson.number} controls preload="none" src={activeNhkLesson.audio}>Browser tidak mendukung audio.</audio><div className="nhk-actions"><a className="outline" href={activeNhkLesson.page} target="_blank" rel="noreferrer">Naskah & grammar ↗</a><a className="outline" href={activeNhkLesson.pdf} target="_blank" rel="noreferrer">PDF Indonesia ↗</a></div><div className="nhk-method"><small>CARA BELAJAR 15 MENIT</small><ol><li>Dengarkan sekali tanpa naskah; tangkap tempat dan tujuan percakapan.</li><li>Buka naskah, tandai satu pola dan tiga kata baru.</li><li>Putar ulang per kalimat lalu shadowing dengan jeda sesingkat mungkin.</li><li>Tutup naskah dan ceritakan kembali inti dialog dalam satu kalimat.</li></ol></div><button className="primary" onClick={()=>{markComplete(`nhk-${activeNhkLesson.number}`,`Pelajaran NHK ${activeNhkLesson.number} selesai!`);setNhkLessonIndex(Math.min(47,nhkLessonIndex+1))}}>{completed.includes(`nhk-${activeNhkLesson.number}`)?"Selesai ✓":"Tandai selesai & lanjut →"}</button></div></article></div>
+            <div className="nhk-bridge"><div><small>AGAR BUKAN SEKADAR MENONTON</small><h3>Hubungkan setiap episode ke latihan situs kita</h3></div><button onClick={()=>setView("mendengar")}><span>1</span><b>Listening</b><small>Tangkap informasi kunci</small></button><button onClick={()=>setView("tatabahasa")}><span>2</span><b>Bunpou</b><small>Bedah pola episode</small></button><button onClick={()=>setView("studio")}><span>3</span><b>Shadowing</b><small>Rekam dan bandingkan</small></button><button onClick={()=>setView("review")}><span>4</span><b>Review</b><small>Jaga agar tidak lupa</small></button></div>
           </div>}
 
           {view === "membaca" && <div className="reading-view">

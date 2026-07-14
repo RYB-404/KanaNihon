@@ -68,3 +68,16 @@ test("ships the N4 practice suite and licensed vocabulary reference", async () =
   assert.equal(JSON.parse(lexicon).items.length, 1384);
   assert.match(license, /MIT License/);
 });
+
+test("ships the NHK Indonesian companion hub without copying media", async () => {
+  const [page, nhk] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/nhk-data.ts", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /Pusat NHK/);
+  assert.match(page, /Audio, gambar, naskah, dan PDF tetap disajikan langsung oleh NHK/);
+  assert.match(nhk, /Array\.from\(\{length:48\}/);
+  assert.match(nhk, /String\(number\)\.padStart\(2,"0"\)/);
+  assert.match(nhk, /Sensei Oshiete/);
+  assert.match(nhk, /Kata tiruan bunyi/);
+});
