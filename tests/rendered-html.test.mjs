@@ -99,3 +99,19 @@ test("ships working audio toggles and tiered written quizzes", async () => {
   assert.match(data, /Susun menjadi kalimat yang benar/);
   assert.match(css, /button\.playing:after\{content:"Ⅱ"/);
 });
+
+test("explains kana families and auto-checks handwriting", async () => {
+  const [page, css] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /type KanaSet = "basic" \| "dakuon" \| "handakuon" \| "contracted" \| "special"/);
+  assert.match(page, /K → G/);
+  assert.match(page, /H → P/);
+  assert.match(page, /Kana bunyi-i \+ ゃ・ゅ・ょ kecil/);
+  assert.match(page, /async function checkWriting\(\)/);
+  assert.match(page, /expectedStarts/);
+  assert.match(page, /Bentuk \{writingResult\.shape\}% · urutan & titik mulai/);
+  assert.match(css, /max-width:min\(1700px,calc\(100vw - 56px\)\)/);
+  assert.match(css, /\.writing-result/);
+});

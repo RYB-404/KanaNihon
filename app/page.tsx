@@ -8,7 +8,7 @@ import { NHK_LESSONS, NHK_RESOURCES } from "./nhk-data";
 
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
-type KanaSet = "basic" | "voiced" | "contracted" | "special";
+type KanaSet = "basic" | "dakuon" | "handakuon" | "contracted" | "special";
 type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio" | "nhk";
 type LexiconItem = {id:string;word:string;reading:string;meaning:string;level:"N5"|"N4"};
 type ReviewStat = {due:number;interval:number;ease:number;right:number;wrong:number};
@@ -65,6 +65,10 @@ const HIRAGANA_VOICED: Kana[] = [
 ].map(([char, romaji]) => ({ char, romaji }));
 
 const KATAKANA_VOICED: Kana[] = HIRAGANA_VOICED.map(({char,romaji}) => ({char:String.fromCodePoint(char.codePointAt(0)! + 0x60),romaji}));
+const HIRAGANA_DAKUON = HIRAGANA_VOICED.slice(0,20);
+const HIRAGANA_HANDAKUON = HIRAGANA_VOICED.slice(20);
+const KATAKANA_DAKUON = KATAKANA_VOICED.slice(0,20);
+const KATAKANA_HANDAKUON = KATAKANA_VOICED.slice(20);
 const HIRAGANA_CONTRACTED: Kana[] = [
   ["きゃ","kya"],["きゅ","kyu"],["きょ","kyo"],["ぎゃ","gya"],["ぎゅ","gyu"],["ぎょ","gyo"],
   ["しゃ","sha"],["しゅ","shu"],["しょ","sho"],["じゃ","ja"],["じゅ","ju"],["じょ","jo"],
@@ -86,8 +90,9 @@ const TOTAL_KANA_FORMS = new Set([...HIRAGANA,...HIRAGANA_VOICED,...HIRAGANA_CON
 
 const KANA_SET_INFO: Record<KanaSet,{label:string;hint:string}> = {
   basic:{label:"Dasar 46",hint:"Gojūon: fondasi bunyi dan bentuk kana."},
-  voiced:{label:"Dakuten ゛゜",hint:"Bunyi bersuara dan setengah bersuara: が・ざ・だ・ば・ぱ."},
-  contracted:{label:"Kombinasi ゃゅょ",hint:"Yōon: gabungkan kana kolom i dengan ゃ・ゅ・ょ kecil sebagai satu ketukan."},
+  dakuon:{label:"Dakuon ゛",hint:"Tambahkan tenten ゛ pada baris K, S, T, dan H: bunyinya menjadi G, Z, D, dan B."},
+  handakuon:{label:"Handakuon ゜",hint:"Tambahkan maru ゜ hanya pada baris H: は・ひ・ふ・へ・ほ berubah menjadi bunyi P."},
+  contracted:{label:"Yōon ゃゅょ",hint:"Gabungkan kana berakhiran bunyi-i dengan ゃ・ゅ・ょ kecil. Dibaca satu ketukan, bukan dua huruf terpisah."},
   special:{label:"Bunyi khusus",hint:"Konsonan ganda, vokal panjang, dan bacaan partikel yang perlu dikenali."},
 };
 
@@ -135,6 +140,7 @@ export default function Home() {
   const [finished, setFinished] = useState(false);
   const [toast, setToast] = useState("");
   const [showStrokeGuide, setShowStrokeGuide] = useState(true);
+  const [writingResult, setWritingResult] = useState<{score:number;shape:number;order:number;message:string}|null>(null);
   const [completed, setCompleted] = useState<string[]>([]);
   const [learnedWords, setLearnedWords] = useState<string[]>([]);
   const [wordIndex, setWordIndex] = useState(0);
@@ -175,12 +181,13 @@ export default function Home() {
   const [playingAudioKey, setPlayingAudioKey] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
+  const strokeStarts = useRef<{x:number;y:number}[]>([]);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const kanaCollections = script === "hiragana"
-    ? {basic:HIRAGANA,voiced:HIRAGANA_VOICED,contracted:HIRAGANA_CONTRACTED,special:HIRAGANA_SPECIAL}
-    : {basic:KATAKANA,voiced:KATAKANA_VOICED,contracted:KATAKANA_CONTRACTED,special:KATAKANA_SPECIAL};
+    ? {basic:HIRAGANA,dakuon:HIRAGANA_DAKUON,handakuon:HIRAGANA_HANDAKUON,contracted:HIRAGANA_CONTRACTED,special:HIRAGANA_SPECIAL}
+    : {basic:KATAKANA,dakuon:KATAKANA_DAKUON,handakuon:KATAKANA_HANDAKUON,contracted:KATAKANA_CONTRACTED,special:KATAKANA_SPECIAL};
   const kana = kanaCollections[kanaSet];
   const active = kana[selected] ?? kana[0];
   const scriptLearned = learned.filter((x) => kana.some((k) => k.char === x)).length;
@@ -212,6 +219,8 @@ export default function Home() {
     canvas.height = rect.height * window.devicePixelRatio;
     const ctx = canvas.getContext("2d");
     ctx?.scale(window.devicePixelRatio, window.devicePixelRatio);
+    strokeStarts.current = [];
+    setWritingResult(null);
   }, [active, view]);
 
   const percent = Math.round((scriptLearned / kana.length) * 100);
@@ -326,10 +335,12 @@ export default function Home() {
 
   function beginDraw(e: React.PointerEvent<HTMLCanvasElement>) {
     drawing.current = true;
+    setWritingResult(null);
     e.currentTarget.setPointerCapture(e.pointerId);
     const ctx = e.currentTarget.getContext("2d");
     const p = canvasPoint(e);
     if (!ctx) return;
+    strokeStarts.current.push(p);
     ctx.beginPath(); ctx.moveTo(p.x, p.y);
     ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.lineWidth = 11; ctx.strokeStyle = "#25221f";
   }
@@ -345,6 +356,62 @@ export default function Home() {
   function clearCanvas() {
     const canvas = canvasRef.current;
     canvas?.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    strokeStarts.current = [];
+    setWritingResult(null);
+  }
+
+  async function checkWriting() {
+    const canvas = canvasRef.current;
+    if (!canvas || strokeStarts.current.length === 0) {
+      setWritingResult({score:0,shape:0,order:0,message:"Tulis hurufnya terlebih dahulu, lalu tekan Periksa tulisan."});
+      return;
+    }
+    if ([...active.char].length > 1) {
+      setWritingResult({score:0,shape:0,order:0,message:"Kombinasi ini terdiri dari dua kana. Periksa tiap huruf dasarnya dahulu agar koreksinya akurat."});
+      return;
+    }
+    try {
+      const svgText = await fetch(strokeAsset).then((response)=>response.text());
+      const expectedStarts = [...svgText.matchAll(/id="[^"]+-s\d+" d="M\s*([\d.-]+)[,\s]+([\d.-]+)/g)].map((match)=>({x:Number(match[1]),y:Number(match[2])}));
+      const image = new Image();
+      image.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgText)}`;
+      await image.decode();
+      const reference = document.createElement("canvas");
+      reference.width = canvas.width; reference.height = canvas.height;
+      const refCtx = reference.getContext("2d",{willReadFrequently:true});
+      const userCtx = canvas.getContext("2d",{willReadFrequently:true});
+      if (!refCtx || !userCtx) throw new Error("Canvas tidak tersedia");
+      refCtx.drawImage(image,reference.width*.06,reference.height*.06,reference.width*.88,reference.height*.88);
+      const user = userCtx.getImageData(0,0,canvas.width,canvas.height).data;
+      const ref = refCtx.getImageData(0,0,canvas.width,canvas.height).data;
+      const cell = Math.max(4,Math.round(window.devicePixelRatio*4));
+      const cols = Math.ceil(canvas.width/cell), rows = Math.ceil(canvas.height/cell);
+      const userMask = new Uint8Array(cols*rows), refMask = new Uint8Array(cols*rows);
+      for (let y=0;y<canvas.height;y++) for (let x=0;x<canvas.width;x++) {
+        const index=(y*canvas.width+x)*4, grid=Math.floor(y/cell)*cols+Math.floor(x/cell);
+        if (user[index+3]>30) userMask[grid]=1;
+        if (ref[index+3]>30 && ref[index]<135 && ref[index+1]<135 && ref[index+2]<135) refMask[grid]=1;
+      }
+      const nearby=(mask:Uint8Array,index:number,radius=3)=>{const x=index%cols,y=Math.floor(index/cols);for(let dy=-radius;dy<=radius;dy++)for(let dx=-radius;dx<=radius;dx++){const nx=x+dx,ny=y+dy;if(nx>=0&&ny>=0&&nx<cols&&ny<rows&&mask[ny*cols+nx])return true}return false};
+      let userTotal=0,userHit=0,refTotal=0,refHit=0;
+      for(let index=0;index<userMask.length;index++){if(userMask[index]){userTotal++;if(nearby(refMask,index))userHit++}if(refMask[index]){refTotal++;if(nearby(userMask,index))refHit++}}
+      const precision=userTotal?userHit/userTotal:0, coverage=refTotal?refHit/refTotal:0;
+      const shape=Math.round((precision*.45+coverage*.55)*100);
+      const rect=canvas.getBoundingClientRect(), diagonal=Math.hypot(rect.width,rect.height);
+      const compared=Math.min(expectedStarts.length,strokeStarts.current.length);
+      let orderTotal=0;
+      for(let index=0;index<compared;index++){
+        const expected={x:rect.width*.06+(expectedStarts[index].x/109)*rect.width*.88,y:rect.height*.06+(expectedStarts[index].y/109)*rect.height*.88};
+        orderTotal+=Math.max(0,1-Math.hypot(strokeStarts.current[index].x-expected.x,strokeStarts.current[index].y-expected.y)/(diagonal*.22));
+      }
+      const order=Math.round((expectedStarts.length ? orderTotal/expectedStarts.length : 0)*100);
+      const strokePenalty=Math.abs(strokeStarts.current.length-expectedStarts.length)*8;
+      const score=Math.max(0,Math.min(100,Math.round(shape*.68+order*.32-strokePenalty)));
+      const message=score>=78?"Bagus! Bentuk dan urutan goresanmu sudah dekat dengan contoh.":score>=55?"Sudah terbaca. Coba rapikan posisi dan mulai setiap garis lebih dekat ke nomor panduan.":strokeStarts.current.length!==expectedStarts.length?`Coba lagi dengan ${expectedStarts.length} goresan. Kamu membuat ${strokeStarts.current.length} goresan.`:"Coba jiplak panduan lebih pelan dan gunakan ruang kotak secara penuh.";
+      setWritingResult({score,shape,order,message});
+    } catch {
+      setWritingResult({score:0,shape:0,order:0,message:"Panduan koreksi belum dapat dimuat. Coba muat ulang halaman."});
+    }
   }
 
   function gradeReview(rating: "ulang"|"sulit"|"bagus"|"mudah") {
@@ -411,8 +478,18 @@ export default function Home() {
   const learningPoints = learned.length + learnedWords.length + completed.length;
   const voicedBase: Record<string,string> = {が:"か",ぎ:"き",ぐ:"く",げ:"け",ご:"こ",ざ:"さ",じ:"し",ず:"す",ぜ:"せ",ぞ:"そ",だ:"た",ぢ:"ち",づ:"つ",で:"て",ど:"と",ば:"は",び:"ひ",ぶ:"ふ",べ:"へ",ぼ:"ほ",ぱ:"は",ぴ:"ひ",ぷ:"ふ",ぺ:"へ",ぽ:"ほ"};
   const hiraganaActive = script === "katakana" ? [...active.char].map(c=>String.fromCodePoint(c.codePointAt(0)!-0x60)).join("") : active.char;
+  const toScript = (text:string) => script === "hiragana" ? text : [...text].map((char)=>/[ぁ-ゖ]/.test(char) ? String.fromCodePoint(char.codePointAt(0)!+0x60) : char).join("");
+  const kanaFamilyRows = kanaSet === "dakuon" ? [
+    ["K → G","か き く け こ","が ぎ ぐ げ ご"],["S → Z","さ し す せ そ","ざ じ ず ぜ ぞ"],
+    ["T → D","た ち つ て と","だ ぢ づ で ど"],["H → B","は ひ ふ へ ほ","ば び ぶ べ ぼ"],
+  ] : kanaSet === "handakuon" ? [["H → P","は ひ ふ へ ほ","ぱ ぴ ぷ ぺ ぽ"]]
+    : kanaSet === "contracted" ? [
+      ["K / G","き・ぎ","きゃ きゅ きょ ／ ぎゃ ぎゅ ぎょ"],["S / Z","し・じ","しゃ しゅ しょ ／ じゃ じゅ じょ"],
+      ["T / N","ち・に","ちゃ ちゅ ちょ ／ にゃ にゅ にょ"],["H / B / P","ひ・び・ぴ","ひゃ ひゅ ひょ ／ びゃ びゅ びょ ／ ぴゃ ぴゅ ぴょ"],
+      ["M / R","み・り","みゃ みゅ みょ ／ りゃ りゅ りょ"],
+    ] : [];
   const activeBreakdown = kanaSet === "contracted" ? `${[...active.char][0]} + ${[...active.char][1]} kecil = ${active.char}`
-    : kanaSet === "voiced" ? `${script === "hiragana" ? voicedBase[hiraganaActive] : String.fromCodePoint(voicedBase[hiraganaActive]?.codePointAt(0)!+0x60)} + ${hiraganaActive.startsWith("ぱ")||hiraganaActive.startsWith("ぴ")||hiraganaActive.startsWith("ぷ")||hiraganaActive.startsWith("ぺ")||hiraganaActive.startsWith("ぽ") ? "゜maru" : "゛tenten"} = ${active.char}`
+    : kanaSet === "dakuon" || kanaSet === "handakuon" ? `${toScript(voicedBase[hiraganaActive] ?? hiraganaActive)} + ${kanaSet === "handakuon" ? "゜ maru" : "゛ tenten"} = ${active.char}`
     : kanaSet === "special" ? KANA_SET_INFO.special.hint
     : `Lihat bentuk → dengar ${active.romaji} → ucapkan tanpa romaji`;
   const overallPercent = Math.min(100, Math.round((learningPoints / 120) * 100));
@@ -644,9 +721,13 @@ export default function Home() {
               <span>{kana.length} bentuk pada bagian ini</span>
             </div>
             <div className="kana-set-tabs" role="tablist" aria-label="Jenis bunyi kana">
-              {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((set)=><button role="tab" aria-selected={kanaSet===set} className={kanaSet===set?"selected":""} key={set} onClick={()=>{setKanaSet(set);setSelected(0)}}><b>{KANA_SET_INFO[set].label}</b><span>{set === "basic" ? "あ" : set === "voiced" ? "が" : set === "contracted" ? "きゃ" : "っ"}</span></button>)}
+              {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((set)=><button role="tab" aria-selected={kanaSet===set} className={kanaSet===set?"selected":""} key={set} onClick={()=>{setKanaSet(set);setSelected(0)}}><b>{KANA_SET_INFO[set].label}</b><span>{set === "basic" ? "あ" : set === "dakuon" ? "が" : set === "handakuon" ? "ぱ" : set === "contracted" ? "きゃ" : "っ"}</span></button>)}
             </div>
             <div className="kana-set-note"><b>{KANA_SET_INFO[kanaSet].label}</b><span>{KANA_SET_INFO[kanaSet].hint}</span></div>
+            {kanaFamilyRows.length > 0 && <div className={`kana-family-guide ${kanaSet}`} aria-label={`Huruf yang termasuk ${KANA_SET_INFO[kanaSet].label}`}>
+              <div className="kana-family-heading"><b>Huruf apa saja yang masuk?</b><span>{kanaSet === "contracted" ? "Kana bunyi-i + ゃ・ゅ・ょ kecil" : `Huruf dasar + ${kanaSet === "handakuon" ? "maru ゜" : "tenten ゛"}`}</span></div>
+              <div className="kana-family-rows">{kanaFamilyRows.map(([family,base,result])=><div key={family}><strong>{family}</strong><span>{toScript(base)}</span><i>→</i><b>{toScript(result)}</b></div>)}</div>
+            </div>}
             <article className="guided-kana" aria-label="Mode kelas hiragana">
               <div className="guided-steps"><span className="active">1 · LIHAT</span><span>2 · DENGAR</span><span>3 · IKUTI</span><span>4 · GABUNGKAN</span></div>
               <div className="guided-main">
@@ -736,7 +817,8 @@ export default function Home() {
                 </div>
                 <div className="direction-note"><b>1 → 2 → 3</b><span>Angkat pena setiap berpindah ke nomor berikutnya.</span></div>
                 <span className="step-number">PRAKTIK</span><h3>Jiplak perlahan</h3><p>Gunakan jari, mouse, atau pena digital. Matikan “angka urutan” setelah kamu mulai hafal.</p>
-                <div className="writing-buttons"><button className="outline" onClick={clearCanvas}>Hapus tulisan</button><button className="primary" onClick={markLearned}>Selesai latihan</button></div>
+                {writingResult && <div className={`writing-result ${writingResult.score>=78?"good":writingResult.score>=55?"close":"retry"}`} role="status"><strong>{writingResult.score>0?`${writingResult.score}/100`:"Belum dinilai"}</strong><div><b>{writingResult.score>=78?"Tulisan bagus":writingResult.score>=55?"Hampir benar":"Perlu dicoba lagi"}</b><p>{writingResult.message}</p>{writingResult.score>0&&<small>Bentuk {writingResult.shape}% · urutan & titik mulai {writingResult.order}%</small>}</div></div>}
+                <div className="writing-buttons"><button className="outline" onClick={clearCanvas}>Hapus tulisan</button><button className="outline check-writing" onClick={checkWriting}>Periksa tulisan</button><button className="primary" onClick={markLearned} disabled={!writingResult||writingResult.score<55}>Selesai latihan</button></div>
               </div>
             </div>
             <div className="character-strip" aria-label="Pilih huruf latihan">
