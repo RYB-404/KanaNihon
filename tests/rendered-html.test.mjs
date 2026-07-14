@@ -112,6 +112,16 @@ test("explains kana families and auto-checks handwriting", async () => {
   assert.match(page, /async function checkWriting\(\)/);
   assert.match(page, /expectedStarts/);
   assert.match(page, /Bentuk \{writingResult\.shape\}% · urutan & titik mulai/);
-  assert.match(css, /max-width:min\(1700px,calc\(100vw - 56px\)\)/);
+  assert.match(css, /max-width:min\(1600px,calc\(100vw - 72px\)\)/);
   assert.match(css, /\.writing-result/);
+});
+
+test("keeps the NHK illustration fully visible", async () => {
+  const [page, css] = await Promise.all([
+    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+  assert.match(page, /<audio key=\{activeNhkLesson\.number\}/);
+  assert.match(page, /Ilustrasi resmi NHK pelajaran/);
+  assert.match(css, /\.nhk-image img\{[^}]*object-fit:contain/);
 });
