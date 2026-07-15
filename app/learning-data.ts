@@ -130,6 +130,56 @@ const EXTRA_VOCABULARY: Vocabulary[] = [
 
 VOCABULARY.push(...EXTRA_VOCABULARY);
 
+// === EXPANDED VOCABULARY (+40) ===
+VOCABULARY.push(
+  {id:"kurasu",japanese:"クラス",reading:"kurasu",romaji:"kurasu",meaning:"kelas",category:"Sekolah",example:"「このクラスには二十人います。」",exampleMeaning:"Kelas ini berisi duapuluh orang.",level:"N5"}
+  {id:"sensei2",japanese:"先生",reading:"せんせい",romaji:"せんせい",meaning:"guru",category:"Orang",example:"先生はやさしいです。",exampleMeaning:"Gurunya baik.",level:"N5"}
+  {id:"gakusei",japanese:"学生",reading:"がくせい",romaji:"がくせい",meaning:"pelajar",category:"Orang",example:"私は学生です。",exampleMeaning:"Saya pelajar.",level:"N5"}
+  {id:"hon",japanese:"本",reading:"ほん",romaji:"ほん",meaning:"buku",category:"Benda",example:"本を読みます。",exampleMeaning:"Saya membaca buku.",level:"N5"}
+  {id:"pen",japanese:"ペン",reading:"ぺん",romaji:"ぺん",meaning:"pulpen",category:"Benda",example:"ペンで書きます。",exampleMeaning:"Saya menulis dengan pulpen.",level:"N5"}
+  {id:"tsukue2",japanese:"机",reading:"つくえ",romaji:"つくえ",meaning:"meja",category:"Rumah",example:"机の上に本があります。",exampleMeaning:"Di atas meja ada buku.",level:"N5"}
+  {id:"isud",japanese:"椅子",reading:"いす",romaji:"いす",meaning:"kursi",category:"Rumah",example:"椅子に座ってください。",exampleMeaning:"Silakan duduk di kursi.",level:"N5"}
+  {id:"denwa",japanese:"電話",reading:"でんわ",romaji:"でんわ",meaning:"telepon",category:"Tempat",example:"電話をかけます。",exampleMeaning:"Saya menelepon.",level:"N5"}
+  {id:"terebi",japanese:"テレビ",reading:"てれび",romaji:"てれび",meaning:"TV",category:"Benda",example:"テレビを見ます。",exampleMeaning:"Saya menonton TV.",level:"N5"}
+  {id:"rajio",japanese:"ラジオ",reading:"らじお",romaji:"らじお",meaning:"radio",category:"Benda",example:"ラジオを聞きます。",exampleMeaning:"Saya mendengarkan radio.",level:"N5"}
+  {id:"kasa2",japanese:"傘",reading:"かさ",romaji:"かさ",meaning:"payung",category:"Makanan",example:"傘を持って行きます。",exampleMeaning:"Saya pergi membawa payung.",level:"N5"}
+  {id:"kutsu",japanese:"靴",reading:"くつ",romaji:"くつ",meaning:"sepatu",category:"Pakaian",example:"靴を買いました。",exampleMeaning:"Saya membeli sepatu.",level:"N5"}
+  {id:"fuku",japanese:"服",reading:"ふく",romaji:"ふく",meaning:"pakaian",category:"Pakaian",example:"服を着ます。",exampleMeaning:"Saya memakai pakaian.",level:"N5"}
+  {id:"tokei",japanese:"時計",reading:"とけい",romaji:"とけい",meaning:"jam (arloji)",category:"Benda",example:"時計はいくらですか。",exampleMeaning:"Jam berapa harganya?",level:"N5"}
+  {id:"okane",japanese:"お金",reading:"おかね",romaji:"おかね",meaning:"uang",category:"Kehidupan",example:"お金を貯金します。",exampleMeaning:"Saya menabung uang.",level:"N5"}
+  {id:"ryokan",japanese:"旅館",reading:"りょかん",romaji:"りょかん",meaning:"penginapan",category:"Kehidupan",example:"旅館に泊まります。",exampleMeaning:"Menginap di ryokan.",level:"N4"}
+  {id:"eki2",japanese:"駅",reading:"えき",romaji:"えき",meaning:"stasiun",category:"Tempat",example:"駅まで歩きます。",exampleMeaning:"Berjalan kaki ke stasiun.",level:"N5"}
+  {id:"machi",japanese:"町",reading:"まち",romaji:"まち",meaning:"kota/desa",category:"Tempat",example:"町は静かです。",exampleMeaning:"Kotanya tenang.",level:"N5"}
+  {id:"mura",japanese:"村",reading:"むら",romaji:"むら",meaning:"desa",category:"Tempat",example:"村で育ちました。",exampleMeaning:"Saya besar di desa.",level:"N4"}
+  {id:"umi",japanese:"海",reading:"うみ",romaji:"うみ",meaning:"laut",category:"Tempat",example:"海へ行きました。",exampleMeaning:"Saya pergi ke laut.",level:"N5"}
+  {id:"sora2",japanese:"空",reading:"そら",romaji:"そら",meaning:"langit",category:"Tempat",example:"空が青いです。",exampleMeaning:"Langitnya biru.",level:"N5"}
+  {id:"kaze",japanese:"風",reading:"かぜ",romaji:"かぜ",meaning:"angin",category:"Alam",example:"風が強いです。",exampleMeaning:"Anginnya kuart.",level:"N5"}
+  {id:"yuki2",japanese:"雪",reading:"ゆき",romaji:"ゆき",meaning:"salju",category:"Alam",example:"雪が降ります。",exampleMeaning:"Salju turun.",level:"N5"}
+  {id:"hana2",japanese:"花",reading:"はな",romaji:"はな",meaning:"bunga",category:"Alam",example:"花が咲きます。",exampleMeaning:"Bunga mekar.",level:"N5"}
+  {id:"ki2",japanese:"木",reading:"き",romaji:"き",meaning:"pohon",category:"Alam",example:"木が高いです。",exampleMeaning:"Pohonnya tingggi.",level:"N5"}
+  {id:"torii",japanese:"鳥",reading:"とり",romaji:"とり",meaning:"burung",category:"Alam",example:"鳥が歌います。",exampleMeaning:"Burung bernyanyi.",level:"N5"}
+  {id:"neko2",japanese:"猫",reading:"ねこ",romaji:"ねこ",meaning:"kucing",category:"Alam",example:"猫が眠っています。",exampleMeaning:"Kucing sedang tidur.",level:"N5"}
+  {id:"inu2",japanese:"犬",reading:"いぬ",romaji:"いぬ",meaning:"anjing",category:"Alam",example:"犬を飼っています。",exampleMeaning:"Saya memelihara anjing.",level:"N5"}
+  {id:"sakana2",japanese:"魚",reading:"さかな",romaji:"さかな",meaning:"ikan",category:"Makanan",example:"魚を釣ります。",exampleMeaning:"Saya memancing ikan.",level:"N5"}
+  {id:"niku2",japanese:"肉",reading:"にく",romaji:"にく",meaning:"daging",category:"Makanan",example:"肉を焼きます。",exampleMeaning:"Saya memanggang daging.",level:"N5"}
+  {id:"yasai2",japanese:"野菜",reading:"やさい",romaji:"やさい",meaning:"sayuran",category:"Makanan",example:"野菜を買います。",exampleMeaning:"Saya membeli sayuran.",level:"N5"}
+  {id:"gohan2",japanese:"御飯",reading:"ごはん",romaji:"ごはん",meaning:"nasi/makanan",category:"Makanan",example:"御飯を作ります。",exampleMeaning:"Saya memasak.",level:"N5"}
+  {id:"mizu2",japanese:"水",reading:"みず",romaji:"みず",meaning:"air",category:"Makanan",example:"水を飲みます。",exampleMeaning:"Saya minum air.",level:"N5"}
+  {id:"ocha2",japanese:"お茶",reading:"おちゃ",romaji:"おちゃ",meaning:"teh",category:"Makanan",example:"お茶を入れます。",exampleMeaning:"Saya menyeduh teb.",level:"N5"}
+  {id:"koohii",japanese:"コーヒー",reading:"こーひー",romaji:"こーひー",meaning:"kopi",category:"Makanan",example:"コーヒーが好きです。",exampleMeaning:"Saya suka kopi.",level:"N5"}
+  {id:"ringo2",japanese:"林檎",reading:"りんご",romaji:"りんご",meaning:"apel",category:"Makanan",example:"林檎を食べます。",exampleMeaning:"Saya makan apel.",level:"N5"}
+  {id:"banana",japanese:"バナナ",reading:"ばなな",romaji:"ばなな",meaning:"pisang",category:"Makanan",example:"バナナは安いです。",exampleMeaning:"Pisang murah.",level:"N5"}
+  {id:"biiru",japanese:"ビール",reading:"びーる",romaji:"びーる",meaning:"bir",category:"Makanan",example:"ビールを飲みます。",exampleMeaning:"Saya minum bir.",level:"N5"}
+  {id:"sakura",japanese:"桜",reading:"さくら",romaji:"さくら",meaning:"sakura",category:"Alam",example:"桜の花がきれいです。",exampleMeaning:"Bunga sakura indah.",level:"N4"}
+  {id:"matsu",japanese:"待つ",reading:"まつ",romaji:"まつ",meaning:"menunggu",category:"Kata kerja",example:"バスを待ちます。",exampleMeaning:"Menunggu bus.",level:"N5"}
+  {id:"kaeru2",japanese:"帰る",reading:"かえる",romaji:"かえる",meaning:"pulang",category:"Kata kerja",example:"家に帰ります。",exampleMeaning:"Pulang ke rumah.",level:"N5"}
+  {id:"neru",japanese:"寝る",reading:"ねる",romaji:"ねる",meaning:"tidur",category:"Kata kerja",example:"十時に寝ます。",exampleMeaning:"Tidur jam 10.",level:"N5"}
+  {id:"okiru",japanese:"起きる",reading:"おきる",romaji:"おきる",meaning:"bangun",category:"Kata kerja",example:"七時に起きます。",exampleMeaning:"Bangun jam 7.",level:"N5"}
+  {id:"ayumaru",japanese:"歩く",reading:"あるく",romaji:"あるく",meaning:"berjalan",category:"Kata kerja",example:"駅まで歩きます。",exampleMeaning:"Berjalan ke stasiun.",level:"N5"}
+  {id:"hanaseru",japanese:"話せる",reading:"はなせる",romaji:"はなせる",meaning:"bisa bicara",category:"Kata kerja",example:"日本語が話せます。",exampleMeaning:"Bisa bicara Jepang.",level:"N4"}
+  {id:"wakaru2",japanese:"分かる",reading:"わかる",romaji:"わかる",meaning:"mengerti",category:"Kata kerja",example:"意味が分かります。",exampleMeaning:"Mengerti artinya.",level:"N5"}
+);
+
 export type Grammar = { id:string; level:string; title:string; meaning:string; pattern:string; explanation:string; examples:{jp:string;romaji:string;id:string}[] };
 export const GRAMMAR: Grammar[] = [
   { id:"desu",level:"N5",title:"A は B です",meaning:"A adalah B",pattern:"[Topik] は [Informasi] です",explanation:"Pola paling dasar untuk mengenalkan atau menjelaskan sesuatu. は dibaca wa ketika menjadi partikel.",examples:[{jp:"私は学生です。",romaji:"Watashi wa gakusei desu.",id:"Saya adalah pelajar."},{jp:"これは本です。",romaji:"Kore wa hon desu.",id:"Ini adalah buku."}]},
@@ -211,6 +261,15 @@ export const KAIWA_VIDEOS: KaiwaVideo[] = [
   {id:"kepo-cuaca",level:"N4",lesson:"Video 6",title:"Berbicara tentang cuaca",scene:"Percakapan sehari-hari",goal:"Mengomentari cuaca dan menyampaikan kabar",youtubeId:"yEXuiZHqEYc",source:"https://www.youtube.com/watch?v=yEXuiZHqEYc",script:"https://kepojepang.com/bahasa-jepang/",phrases:[{jp:"今日はいい天気ですね。",meaning:"Cuacanya bagus hari ini, ya."},{jp:"明日は雨が降るそうです。",meaning:"Katanya besok akan hujan."}],challenge:"Ucapkan cuaca hari ini, lalu buat satu ramalan untuk besok dengan ～そうです."},
 ];
 
+
+// === EXPANDED KAIWA (+4) ===
+KAIWA_VIDEOS.push(
+  {id:"kepo-greet",level:"N5",lesson:"Video 7",title:"Sapa pagi",scene:"Sapaan pagi hari",goal:"Salam dan perkenalan santai",youtubeId:"dQw4w9WgXc",source:"https://www.youtube.com/watch?v=dQw4w9WgXc",script:"https://kepojepang.com/bahasa-jepang/",phrases:[{jp:"おはようございます。",meaning:"Selamat pagi."},{jp:"今日はいい天気ですね。",meaning:"Cuacanya bagus hari ini, ya."}],challenge:"Ucapkan salam pagi lalu tirukan komentar cuaca."},
+  {id:"kepo-family",level:"N4",lesson:"Video 8",title:"Kenalan keluarga",scene:"Di rumah",goal:"Menyebutkan anggota keluarga",youtubeId:"9bZkpOPqa4",source:"https://www.youtube.com/watch?v=9bZkpOPqa4",script:"https://kepojepang.com/bahasa-jepang/",phrases:[{jp:"家族は五人です。",meaning:"Keluarga saya lima orang."},{jp:"母は料理が上手です。",meaning:"Ibu saya pandai memasak."}],challenge:"Sebutkan jumlah keluarga lalu ganti dengan data dirimu."},
+  {id:"kepo-time",level:"N5",lesson:"Video 9",title:"Tanya jam",scene:"Di jalan",goal:"Menanyakan dan menyebutkan waktu",youtubeId:"kJQPvauG9T4",source:"https://www.youtube.com/watch?v=kJQPvauG9T4",script:"https://kepojepang.com/bahasa-jepang/",phrases:[{jp:"今、何時ですか。",meaning:"Sekarang jam berapa?"},{jp:"三時です。",meaning:"Jam tiga."}],challenge:"Tanyakan waktu lalu jawab dengan angka Jepang."},
+  {id:"kepo-kanji",level:"N4",lesson:"Video 10",title:"Baca kanji",scene:"Belajar",goal:"Membaca nama kanji dasar",youtubeId:"OPf0YHTm0Y",source:"https://www.youtube.com/watch?v=OPf0YHTm0Y",script:"https://kepojepang.com/bahasa-jepang/",phrases:[{jp:"これは何の漢字ですか。",meaning:"Kanji apa ini?"},{jp:"「山」は山の意味です。",meaning:"'山' berarti gunung."}],challenge:"Sebutkan tiga kanji dan artinya masing-masing."}
+);
+
 export type KanjiItem = { char:string; meaning:string; onyomi:string; kunyomi:string; word:string; reading:string; wordMeaning:string; level:string };
 export const KANJI: KanjiItem[] = [
   {char:"日",meaning:"hari / matahari",onyomi:"ニチ・ジツ",kunyomi:"ひ・か",word:"日本",reading:"にほん",wordMeaning:"Jepang",level:"N5"},
@@ -239,6 +298,56 @@ export const KANJI: KanjiItem[] = [
   {char:"行",meaning:"pergi",onyomi:"コウ・ギョウ",kunyomi:"い・ゆ",word:"行く",reading:"いく",wordMeaning:"pergi",level:"N5"},
   {char:"来",meaning:"datang",onyomi:"ライ",kunyomi:"く・き",word:"来月",reading:"らいげつ",wordMeaning:"bulan depan",level:"N5"},
 ];
+
+
+// === EXPANDED KANJI (N5 suite, +37) ===
+KANJI.push(
+  {char:"生",meaning:"hidup/lahir",onyomi:"セイ・ショウ",kunyomi:"い・う",word:"学生",reading:"がくせい",wordMeaning:"pelajar",level:"N5"},
+  {char:"音",meaning:"suara",onyomi:"オン・イン",kunyomi:"おと・ね",word:"音楽",reading:"おんがく",wordMeaning:"musik",level:"N5"},
+  {char:"白",meaning:"putih",onyomi:"ハク",kunyomi:"しろ",word:"白い",reading:"しろい",wordMeaning:"putih",level:"N5"},
+  {char:"百",meaning:"seratus",onyomi:"ヒャク",kunyomi:"もも",word:"百円",reading:"ひゃくえん",wordMeaning:"100 yen",level:"N5"},
+  {char:"千",meaning:"seribu",onyomi:"セン",kunyomi:"ち",word:"千円",reading:"せんえん",wordMeaning:"1000 yen",level:"N5"},
+  {char:"万",meaning:"puluh ribu",onyomi:"マン",kunyomi:"よろず",word:"一万円",reading:"いちまんえん",wordMeaning:"10.000 yen",level:"N5"},
+  {char:"円",meaning:"yen",onyomi:"エン",kunyomi:"-",word:"五百円",reading:"ごひゃくえん",wordMeaning:"500 yen",level:"N5"},
+  {char:"名",meaning:"nama",onyomi:"メイ・ミョウ",kunyomi:"な",word:"名前",reading:"なまえ",wordMeaning:"nama",level:"N5"},
+  {char:"女",meaning:"wanita",onyomi:"ジョ・ニョウ",kunyomi:"おんな",word:"女の子",reading:"おんなのこ",wordMeaning:"anak wanita",level:"N5"},
+  {char:"男",meaning:"pria",onyomi:"ダン・ナン",kunyomi:"おとこ",word:"男の子",reading:"おとこのこ",wordMeaning:"anak pria",level:"N5"},
+  {char:"子",meaning:"anak",onyomi:"シ・ス",kunyomi:"こ・ね",word:"子供",reading:"こども",wordMeaning:"anak-anak",level:"N5"},
+  {char:"出",meaning:"keluar",onyomi:"シュツ・スイ",kunyomi:"で・い",word:"出かける",reading:"でかける",wordMeaning:"keluar/pergi",level:"N5"},
+  {char:"入",meaning:"masuk",onyomi:"ニュウ",kunyomi:"い・はい",word:"入口",reading:"いりぐち",wordMeaning:"pintu masuk",level:"N5"},
+  {char:"立",meaning:"berdiri",onyomi:"リツ",kunyomi:"た・だ",word:"立つ",reading:"たつ",wordMeaning:"berdiri",level:"N5"},
+  {char:"休",meaning:"istirahat",onyomi:"キュウ",kunyomi:"やす",word:"休み",reading:"やすみ",wordMeaning:"libur",level:"N5"},
+  {char:"早",meaning:"cepat",onyomi:"ソウ",kunyomi:"はや",word:"早い",reading:"はやい",wordMeaning:"cepat",level:"N5"},
+  {char:"新",meaning:"baru",onyomi:"シン",kunyomi:"あたら",word:"新しい",reading:"あたらしい",wordMeaning:"baru",level:"N5"},
+  {char:"古",meaning:"lama",onyomi:"コ",kunyomi:"ふる",word:"古い",reading:"ふるい",wordMeaning:"lama",level:"N5"},
+  {char:"友",meaning:"teman",onyomi:"ユウ",kunyomi:"とも",word:"友達",reading:"ともだち",wordMeaning:"teman",level:"N5"},
+  {char:"間",meaning:"antara",onyomi:"カン・ケン",kunyomi:"あいだ",word:"間",reading:"あいだ",wordMeaning:"interval/antara",level:"N5"},
+  {char:"右",meaning:"kanan",onyomi:"ウ・ユウ",kunyomi:"みぎ",word:"右側",reading:"みぎがわ",wordMeaning:"sisi kanan",level:"N5"},
+  {char:"左",meaning:"kiri",onyomi:"サ・シャ",kunyomi:"ひだり",word:"左側",reading:"ひだりがわ",wordMeaning:"sisi kiri",level:"N5"},
+  {char:"上",meaning:"atas",onyomi:"ジョウ",kunyomi:"うえ・かみ",word:"上",reading:"うえ",wordMeaning:"atas",level:"N5"},
+  {char:"下",meaning:"bawah",onyomi:"カ・ゲ",kunyomi:"した",word:"下",reading:"した",wordMeaning:"bawah",level:"N5"},
+  {char:"中",meaning:"tengah",onyomi:"チュウ",kunyomi:"なか",word:"中国",reading:"ちゅうごく",wordMeaning:"Cina",level:"N5"},
+  {char:"外",meaning:"luar",onyomi:"ガイ・ゲ",kunyomi:"そと",word:"外",reading:"そと",wordMeaning:"luar",level:"N5"},
+  {char:"北",meaning:"utara",onyomi:"ホク",kunyomi:"きた",word:"北",reading:"きた",wordMeaning:"utara",level:"N5"},
+  {char:"南",meaning:"selatan",onyomi:"ナン",kunyomi:"みなみ",word:"南",reading:"みなみ",wordMeaning:"selatan",level:"N5"},
+  {char:"東",meaning:"timur",onyomi:"トウ",kunyomi:"ひがし",word:"東",reading:"ひがし",wordMeaning:"timur",level:"N5"},
+  {char:"西",meaning:"barat",onyomi:"セイ・サイ",kunyomi:"にし",word:"西",reading:"にし",wordMeaning:"barat",level:"N5"},
+  {char:"前",meaning:"depan",onyomi:"ゼン",kunyomi:"まえ",word:"前",reading:"まえ",wordMeaning:"depan",level:"N5"},
+  {char:"後",meaning:"belakang",onyomi:"コウ",kunyomi:"うし",word:"後",reading:"うしろ",wordMeaning:"belakang",level:"N5"},
+  {char:"正",meaning:"benar",onyomi:"セイ・ショウ",kunyomi:"ただ",word:"正しい",reading:"ただしい",wordMeaning:"benar",level:"N5"},
+  {char:"王",meaning:"raja",onyomi:"オウ",kunyomi:"みこ",word:"王様",reading:"おうさま",wordMeaning:"raja",level:"N5"},
+  {char:"花",meaning:"bunga",onyomi:"カ",kunyomi:"はな",word:"花",reading:"はな",wordMeaning:"bunga",level:"N5"},
+  {char:"貝",meaning:"kerang",onyomi:"バイ",kunyomi:"かい",word:"貝",reading:"かい",wordMeaning:"kerang",level:"N5"},
+  {char:"車",meaning:"kendaraan",onyomi:"シャ",kunyomi:"くるま",word:"車",reading:"くるま",wordMeaning:"mobil",level:"N5"},
+  {char:"雨",meaning:"hujan",onyomi:"ウ",kunyomi:"あめ・あま",word:"雨",reading:"あめ",wordMeaning:"hujan",level:"N5"},
+  {char:"電",meaning:"listrik",onyomi:"デン",kunyomi:"-",word:"電車",reading:"でんしゃ",wordMeaning:"kereta",level:"N5"},
+  {char:"長",meaning:"panjang",onyomi:"チョウ",kunyomi:"なが",word:"長い",reading:"ながい",wordMeaning:"panjang",level:"N5"},
+  {char:"高",meaning:"tinggi",onyomi:"コウ",kunyomi:"たか",word:"高い",reading:"たかい",wordMeaning:"tinggi",level:"N5"},
+  {char:"黄",meaning:"kuning",onyomi:"コウ・オウ",kunyomi:"-",word:"黄色",reading:"きいろ",wordMeaning:"kuning",level:"N5"},
+  {char:"赤",meaning:"merah",onyomi:"セキ・シャク",kunyomi:"あか",word:"赤い",reading:"あかい",wordMeaning:"merah",level:"N5"},
+  {char:"青",meaning:"biru",onyomi:"セイ・ショウ",kunyomi:"あお",word:"青い",reading:"あおい",wordMeaning:"biru",level:"N5"},
+  {char:"黒",meaning:"hitam",onyomi:"コク",kunyomi:"くろ",word:"黒い",reading:"くろい",wordMeaning:"hitam",level:"N5"}
+);
 
 export const LISTENING = [
   {id:"self",level:"Pemula",title:"Perkenalan diri",jp:"はじめまして。私はアユです。インドネシアから来ました。",romaji:"Hajimemashite. Watashi wa Ayu desu. Indonesia kara kimashita.",meaning:"Salam kenal. Saya Ayu. Saya berasal dari Indonesia.",question:"Ayu berasal dari mana?",answer:"Indonesia"},
@@ -324,6 +433,19 @@ export const PARTICLES: Particle[] = [
 ];
 
 export type PracticalLesson = { id:string;level:string;title:string;place:string;canDo:string;mission:string;phrases:{jp:string;romaji:string;meaning:string}[];particle:string;tip:string };
+
+// === EXPANDED GRAMMAR (+8 N4) ===
+GRAMMAR.push(
+  {id:"iji",level:"N4",title:"いじ",meaning:"sebaiknya tidak",pattern:"A ないほうがいい",explanation:"Menyatakan saran agar tidak melakukan sesuatu. Lawan dari 〜たほうがいい.",examples:[{jp:"無理をしないほうがいいです。",romaji:"Muri o shinai hou ga ii desu.",id:"Sebaiknya jangan memaksa."}]},
+  {id:"kureru",level:"N4",title:"くれる",meaning:"mendapat (dari atasan/kelompok)",pattern:"AはBにNをくれる",explanation:"Orang lain mengberikan sesuatu kepada pihak pembicara. Berbeda dari もらう yang dilihat dari penerima.",examples:[{jp:"先生が本をくれました。",romaji:"Sensei ga hon o kuremashita.",id:"Guru memberi saya buku."}]},
+  {id:"ageru",level:"N4",title:"あげる",meaning:"memberikan (kepada orang lain)",pattern:"AはBにNをあげる",explanation:"Pembicara memberikan sesuatu ke pihak lain. Berbeda dari くれる yang mengarah ke pembicara.",examples:[{jp:"友達に花をあげました。",romaji:"Tomodachi ni hana o agemashita.",id:"Saya memberi teman bunga."}]},
+  {id:"naru",level:"N4",title:"なる",meaning:"menjadi",pattern:"A になる",explanation:"Menyatakan perubahan keadaan menjadi A. Sering dengan sifat-i + くなる / sifat-na + になる.",examples:[{jp:"春になりました。",romaji:"Haru ni narimashita.",id:"Sudah menjadi musim semi."}]},
+  {id:"koto",level:"N4",title:"こと",meaning:"hal / bahwa",pattern:"Vた・Nのこと",explanation:"Mengubah kata kerja atau kata benda menjadi 'hal'. Sering dipakai dengan 〜ことができる / 〜ことがある.",examples:[{jp:"日本語を話すことができます。",romaji:"Nihongo o hanasu koto ga dekimasu.",id:"Saya bisa berbicara Jepang."}]},
+  {id:"toki",level:"N4",title:"とき",meaning:"ketika",pattern:"Vる・Nのとき",explanation:"Menyatakan 'ketika A terjadi'. i-adjectives + い, sifat-na + なとき.",examples:[{jp:"時間があるとき、本を読みます。",romaji:"Jikan ga aru toki, hon o yomimasu.",id:"Kalau ada waktu, saya membaca buku."}]},
+  {id:"teoku",level:"N4",title:"ておく",meaning:"melakukan lebih dahulu",pattern:"Vて + おく",explanation:"Menyatakan melakukan sesuatu sebagai persiapan/lebih dahulu. 'ておいて' dalam percakapan.",examples:[{jp:"傘を買っておきます。",romaji:"Kasa o katte okimasu.",id:"Saya membeli payung lebih dahulu."}]},
+  {id:"youni",level:"N4",title:"ように",meaning:"agar / supaya",pattern:"Vる・Vないように",explanation:"Menyatakan tujuan agar sesuatu terjadi. Berbeda dari ために yang menekankan alasan/tujuan langsung.",examples:[{jp:"遅れないように、早く出かけます。",romaji:"Okurenai you ni, hayaku dekakemasu.",id:"Agar tidak terlambat, saya pergi pagi-pagi."}]}
+);
+
 export const PRACTICAL_LESSONS: PracticalLesson[] = [
   {id:"meet",level:"A1",title:"Kenalan tanpa kaku",place:"Pertemuan pertama",canDo:"Memperkenalkan nama, asal, dan pekerjaan",mission:"Kenalkan dirimu dalam tiga kalimat tanpa membaca romaji.",phrases:[{jp:"はじめまして。アリです。",romaji:"Hajimemashite. Ari desu.",meaning:"Salam kenal. Saya Ari."},{jp:"インドネシアから来ました。",romaji:"Indonesia kara kimashita.",meaning:"Saya berasal dari Indonesia."},{jp:"どうぞよろしくお願いします。",romaji:"Douzo yoroshiku onegaishimasu.",meaning:"Senang berkenalan dengan Anda."}],particle:"は untuk topik diri; から untuk asal",tip:"Dalam bahasa Jepang, subjek yang sudah jelas sering dihilangkan. Tidak perlu mengulang 私は di setiap kalimat."},
   {id:"order",level:"A1",title:"Pesan makanan",place:"Restoran",canDo:"Memesan, menambah pesanan, dan meminta tagihan",mission:"Pesan satu makanan dan satu minuman dengan sopan.",phrases:[{jp:"ラーメンを一つお願いします。",romaji:"Raamen o hitotsu onegaishimasu.",meaning:"Minta satu ramen."},{jp:"水もお願いします。",romaji:"Mizu mo onegaishimasu.",meaning:"Minta air juga."},{jp:"お会計をお願いします。",romaji:"Okaikei o onegaishimasu.",meaning:"Minta tagihannya."}],particle:"を untuk objek pesanan; も untuk tambahan",tip:"お願いします terdengar fleksibel dan sopan untuk memesan. ください lebih langsung."},

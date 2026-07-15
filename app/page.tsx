@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import "./dark-theme.css";
 import { BEGINNER_HELP, CONVERSATIONS, GRAMMAR, KAIWA_VIDEOS, KANJI, LISTENING, PARTICLES, PRACTICAL_LESSONS, ROADMAP, SOURCES, VOCABULARY } from "./learning-data";
 import { JLPT_DRILLS, READING_LESSONS, SPEAKING_PROMPTS } from "./n4-data";
 import { PARTICLE_GUIDES, PARTICLE_SOURCES } from "./particle-guides";
@@ -9,7 +10,7 @@ import { NHK_LESSONS, NHK_RESOURCES } from "./nhk-data";
 type Kana = { char: string; romaji: string };
 type Script = "hiragana" | "katakana";
 type KanaSet = "basic" | "dakuon" | "handakuon" | "contracted" | "special";
-type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio" | "nhk";
+type View = "kurikulum" | "belajar" | "latihan" | "kuis" | "kuisgambar" | "kosakata" | "tatabahasa" | "partikel" | "kanji" | "mendengar" | "percakapan" | "situasi" | "tanya" | "membaca" | "review" | "ujian" | "studio" | "nhk" | "latih";
 type LexiconItem = {id:string;word:string;reading:string;meaning:string;meaningEn?:string;level:"N5"|"N4"};
 type ReviewStat = {due:number;interval:number;ease:number;right:number;wrong:number};
 
@@ -173,10 +174,29 @@ export default function Home() {
   const [examAnswers, setExamAnswers] = useState<Record<string,string>>({});
   const [examFinished, setExamFinished] = useState(false);
   const [speakingIndex, setSpeakingIndex] = useState(0);
+  const [latihMode, setLatihMode] = useState<"match" | "dictation">("match");
+  const [latihItems, setLatihItems] = useState<Kana[]>([]);
+  const [latihPicks, setLatihPicks] = useState<string[]>([]);
+  const [latihMatched, setLatihMatched] = useState<string[]>([]);
+  const [latihTimer, setLatihTimer] = useState(0);
+  const [latihDict, setLatihDict] = useState("");
+  const [latihDictOk, setLatihDictOk] = useState<"" | "right" | "wrong">("");
   const [nhkLessonIndex, setNhkLessonIndex] = useState(0);
   const [recording, setRecording] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
   const [recordingError, setRecordingError] = useState("");
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("kananihon-theme");
+      if (savedTheme === "dark" || savedTheme === "light") setTheme(savedTheme);
+    } catch { /* */ }
+  }, []);
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    try { localStorage.setItem("kananihon-theme", theme); } catch { /* */ }
+  }, [theme]);
   const [audioStatus, setAudioStatus] = useState<"ready"|"playing"|"error">("ready");
   const [playingAudioKey, setPlayingAudioKey] = useState<string | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -292,6 +312,53 @@ export default function Home() {
     setSelected(0);
     setFinished(false);
     setAnswerState("idle");
+  }
+
+  function startLatih() {
+    const pool = kana;
+    const items = shuffle(pool).slice(0, Math.min(8, pool.length));
+    setLatihItems(items);
+    setLatihPicks([]);
+    setLatihMatched([]);
+    setLatihDict("");
+    setLatihDictOk("");
+    setLatihTimer(60);
+    setView("latih");
+    let t = 60;
+    const iv = window.setInterval(() => {
+      t -= 1;
+      setLatihTimer(t);
+      if (t <= 0) { window.clearInterval(iv); setLatihTimer(0); }
+    }, 1000);
+  }
+
+  function pickLatih(char: string) {
+    if (latihMatched.includes(char)) return;
+    const next = [...latihPicks, char];
+    setLatihPicks(next);
+    if (next.length === 2) {
+      const [a, b] = next;
+      const pair = latihItems.find((k) => k.char === a || k.char === b);
+      const ok = pair && ((a === pair.char && b === pair.romaji) || (b === pair.char && a === pair.romaji));
+      if (ok && pair) {
+        setLatihMatched((m) => [...m, pair.char]);
+        setLatihPicks([]);
+      } else {
+        window.setTimeout(() => setLatihPicks([]), 600);
+      }
+    }
+  }
+
+  function checkDictation() {
+    const target = latihItems[latihMatched.length % latihItems.length];
+    if (!target) return;
+    const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
+    setLatihDictOk(norm(latihDict) === norm(target.romaji) ? "right" : "wrong");
+    if (norm(latihDict) === norm(target.romaji)) {
+      setLatihMatched((m) => m.includes(target.char) ? m : [...m, target.char]);
+      setLatihDict("");
+      window.setTimeout(() => setLatihDictOk(""), 900);
+    }
   }
 
   function startQuiz() {
@@ -506,10 +573,11 @@ export default function Home() {
         </button>
         <nav aria-label="Navigasi utama">
           <button className={view === "kurikulum" ? "active" : ""} onClick={() => setView("kurikulum")}>Jalur</button>
-          <button className={["belajar","latihan","kuis","kuisgambar"].includes(view) ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
+          <button className={["belajar","latihan","kuis","kuisgambar","latih"].includes(view) ? "active" : ""} onClick={() => setView("belajar")}>Kana</button>
           <button className={["kosakata","tatabahasa","partikel","kanji","situasi","mendengar","percakapan","tanya","membaca","review","ujian","studio","nhk"].includes(view) ? "active" : ""} onClick={() => setView("kosakata")}>N5–N4</button>
         </nav>
         <div className="streak" title="Rangkaian belajar"><span>火</span><strong>{streak}</strong> hari</div>
+        <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")} aria-label="Ganti tema">{theme === "dark" ? "☀" : "☾"}</button>
       </header>
 
       <section className="hero">
@@ -539,9 +607,11 @@ export default function Home() {
             <button className={view === "studio" ? "selected" : ""} onClick={() => setView("studio")}><span>声</span><i>Studio bicara</i></button>
             <button className={view === "review" ? "selected" : ""} onClick={() => setView("review")}><span>復</span><i>Review pintar</i></button>
             <button className={view === "ujian" ? "selected" : ""} onClick={() => setView("ujian")}><span>試</span><i>Simulasi JLPT</i></button>
+            <button className={view === "latih" ? "selected" : ""} onClick={() => startLatih()}><span>速</span><i>Latih cepat</i></button>
             <button className={view === "nhk" ? "selected" : ""} onClick={() => setView("nhk")}><span>放</span><i>Pusat NHK</i></button>
             <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
-          </div>
+            <button className={script === "katakana" ? "selected" : ""} onClick={() => switchScript("katakana")}><span>ア</span> Katakana</button>
+          </div>}
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
             <button className={script === "hiragana" ? "selected" : ""} onClick={() => switchScript("hiragana")}><span>あ</span> Hiragana</button>
             <button className={script === "katakana" ? "selected" : ""} onClick={() => switchScript("katakana")}><span>ア</span> Katakana</button>
@@ -824,6 +894,34 @@ export default function Home() {
             <div className="character-strip" aria-label="Pilih huruf latihan">
               {kana.map((item, i) => <button key={item.char} className={selected === i ? "current" : ""} onClick={() => { setSelected(i); clearCanvas(); }}>{item.char}<small>{item.romaji}</small></button>)}
             </div>
+          </div>}
+
+          {view === "latih" && <div className="latih-view">
+            <div className="section-title"><div><p>LATIH CEPAT · kana.pro gaya</p><h2>Match &amp; dictation</h2></div><span>{latihItems.length} kana · {latihMatched.length} cocok · ⏱ {latihTimer}s</span></div>
+            <div className="level-tabs" aria-label="Pilih mode latih">
+              <button className={latihMode === "match" ? "selected" : ""} onClick={() => { setLatihMode("match"); setLatihMatched([]); setLatihPicks([]); }}>Match</button>
+              <button className={latihMode === "dictation" ? "selected" : ""} onClick={() => { setLatihMode("dictation"); setLatihMatched([]); setLatihDict(""); setLatihDictOk(""); }}>Dictation</button>
+              <button className="outline" onClick={startLatih}>↻ Kocok baru</button>
+            </div>
+            {latihMatched.length >= latihItems.length && latihItems.length > 0 ? (
+              <div className="result-card"><span className="result-seal">済</span><p>SELESAI</p><h2>{latihItems.length}/{latihItems.length} cocok</h2><p>Kerja bagus! Ulangi dengan kocok baru untuk makin lancar.</p><button className="primary" onClick={startLatih}>Kocok lagi</button><button className="outline" onClick={() => setView("belajar")}>Kembali ke Kana</button></div>
+            ) : latihMode === "match" ? (
+              <div className="match-grid">
+                {latihItems.map((k) => <button key={`l-${k.char}`} className={`match-cell ${latihMatched.includes(k.char) ? "done" : ""} ${latihPicks.includes(k.char) ? "picked" : ""}`} onClick={() => pickLatih(k.char)} disabled={latihMatched.includes(k.char)}>{k.char}</button>)}
+                {latihItems.map((k) => <button key={`r-${k.romaji}`} className={`match-cell romaji ${latihMatched.includes(k.char) ? "done" : ""} ${latihPicks.includes(k.romaji) ? "picked" : ""}`} onClick={() => pickLatih(k.romaji)} disabled={latihMatched.includes(k.char)}>{k.romaji}</button>)}
+              </div>
+            ) : (
+              <div className="dictation-wrap">
+                {latihItems.map((k, i) => <div key={k.char} className={`dict-row ${latihMatched.includes(k.char) ? "done" : ""}`}>
+                  <button className="sound-round" onClick={() => { speakJapanese(k.char); setLatihMatched((m) => m); }} aria-label={`Dengarkan ${k.char}`}>{playIcon(k.char)}</button>
+                  <span className="dict-index">{i + 1}</span>
+                  <input className="dict-input" value={i === latihMatched.length ? latihDict : ""} disabled={i !== latihMatched.length} placeholder="Ketik romaji…" onChange={(e) => { setLatihDict(e.target.value); setLatihDictOk(""); }} onKeyDown={(e) => { if (e.key === "Enter") checkDictation(); }} />
+                  {i < latihMatched.length && <span className="dict-answer">{k.char} = {k.romaji}</span>}
+                </div>)}
+                <button className="primary" disabled={latihMatched.length >= latihItems.length} onClick={checkDictation}>Periksa →</button>
+                {latihDictOk && <p className={`dict-feedback ${latihDictOk}`}>{latihDictOk === "right" ? "Benar!" : "Belum tepat, coba lagi."}</p>}
+              </div>
+            )}
           </div>}
 
           {view === "kuis" && <div className="quiz-view">

@@ -1,0 +1,115 @@
+/* === DARK MODE (additive, generated) === */
+:root[data-theme="dark"]{--paper:#15120f;--ink:#f1ebe1;--white:#211d18;--line:#342e27;--muted:#a99e8f;--red:#e8736a;--red-dark:#c85a52;}
+[data-theme="dark"] body{background:var(--paper);color:var(--ink)}
+[data-theme="dark"] .topbar,[data-theme="dark"] .hero{border-color:var(--line)}
+[data-theme="dark"] footer{border-color:var(--line);color:var(--muted)}
+[data-theme="dark"] .toast{background:#2a251f;color:var(--ink)}
+
+/* === LATIH CEPAT (kana.pro-style) === */
+.latih-view{max-width:760px;margin:0 auto}
+.match-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.match-cell{min-height:74px;border:1px solid var(--line);border-radius:11px;background:var(--white);font-family:var(--font-jp);font-size:30px;cursor:pointer;color:var(--ink);transition:.14s}
+.match-cell.romaji{font-family:var(--sans);font-size:17px;font-weight:700}
+.match-cell:hover:not(:disabled){transform:translateY(-2px);border-color:var(--red)}
+.match-cell.picked{border-color:var(--red);background:var(--red);color:#fff}
+.match-cell.done{opacity:.42;cursor:default;border-style:dashed}
+.dictation-wrap{margin-top:18px;display:grid;gap:10px}
+.dict-row{display:grid;grid-template-columns:34px 32px 1fr auto;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--white)}
+.dict-row.done{background:var(--paper);border-color:var(--red)}
+.dict-index{color:var(--muted);font-size:11px;font-weight:800}
+.dict-input{border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:15px;font-family:var(--sans);color:var(--ink)}
+.dict-answer{color:var(--red);font-size:11px;font-weight:700}
+.dict-feedback{margin-top:8px;font-weight:800;font-size:12px}
+.dict-feedback.right{color:#5d8c61}.dict-feedback.wrong{color:#d84b40}
+
+/* theme toggle button (neutral, works both modes) */
+.theme-toggle{width:42px;height:42px;border:1px solid var(--line);background:transparent;border-radius:11px;cursor:pointer;font-size:18px;line-height:1;color:var(--muted);flex:0 0 auto}
+.theme-toggle:hover{color:var(--red);border-color:var(--red)}
+[data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{background:var(--white);color:var(--ink);border-color:var(--line)}
+[data-theme="dark"] .help-search input{color:var(--ink)}
+[data-theme="dark"] .stroke-overlay{opacity:.4;filter:invert(1) contrast(1.1)}
+[data-theme="dark"] .guide-kana{color:#3a342c}
+[data-theme="dark"] .crosshair:before,[data-theme="dark"] .crosshair:after{background:#3a342c}
+[data-theme="dark"] aside{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .progress-track,.quiz-progress{background:#2e2820;color:var(--ink)}
+[data-theme="dark"] .audio-check span{background:#322b23;color:var(--ink)}
+[data-theme="dark"] .audio-check.playing{background:#261d1b;color:var(--ink)}
+[data-theme="dark"] .overview-grid>div{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .roadmap-card{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .category-tabs button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .flashcard{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .flashcard:before{border-color:#2c271f}
+[data-theme="dark"] .lesson-list button,.episode-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .grammar-card,.audio-lesson{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .grammar-badge{background:#281f1c;color:var(--ink)}
+[data-theme="dark"] .kanji-bank button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kanji-detail{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .listen-question{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .transcript{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .scenario-tabs button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .dialogue-card{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .dialogue-lines p{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .particle-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .particle-detai... [truncated]
+.can-do-banner{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .mission-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .mission-card{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kana-row button{background:#241f1a;border-color:#322b23;color:var(--ink)}
+[data-theme="dark"] .detail-card{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .outline{border-color:#4a4239}
+[data-theme="dark"] .canvas-toolbar button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .canvas-toolbar button.guide-on{background:#261d1b;color:var(--ink)}
+[data-theme="dark"] .canvas-wrap{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .crosshair:before,.crosshair:after{background:#2c271f;color:var(--ink)}
+[data-theme="dark"] .stroke-order-card{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .stroke-diagram{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .question-card{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .result-card{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kana-set-tabs button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kana-set-note{background:#261d1b;color:var(--ink)}
+[data-theme="dark"] .kana-family-guide{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kana-family-rows>div{border-color:#322b23}
+[data-theme="dark"] .guided-kana{background:#1d1914;color:var(--ink)}
+[data-theme="dark"] .guided-steps{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .guided-nav{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .comic-stage{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .comic-quiz{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .comic-options button.correct,.comic-word-options button.correct{background:#1b201a;color:var(--ink)}
+[data-theme="dark"] .level-tabs button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kaiwa-source-note{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .kaiwa-tabs button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .kaiwa-tabs button.selected{background:#261d1b;color:var(--ink)}
+[data-theme="dark"] .kaiwa-player{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .shadowing-task{background:#261d1b;color:var(--ink)}
+[data-theme="dark"] .help-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .help-answer{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .answer-core{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .related-path{background:#171e20;color:var(--ink)}
+[data-theme="dark"] .reading-list button,.speaking-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .reading-list button.selected,.speaking-list button.selected{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .reading-card,.speaking-card,.exam-card,.exam-result,.review-card,.review-empty,.lexicon{background:#211d18;color:var(--ink)}
+[data-theme="dark"] .can-do{background:#161e20;color:var(--ink)}
+[data-theme="dark"] .reading-vocab span{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .reading-question{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .reading-question button,.exam-choices button,.grammar-check button{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .reading-question button.correct,.grammar-check button.correct,.exam-result .correct{background:#19201a;color:var(--ink)}
+[data-theme="dark"] .reading-question button.wrong,.grammar-check button.wrong,.exam-result .wrong{background:#2a201c;color:var(--ink)}
+[data-theme="dark"] .lexicon-tools input,.lexicon-tools select{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .lexicon-grid button{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .review-grades button{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .exam-context{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .exam-choices button.selected{background:#2a201c;color:var(--ink)}
+[data-theme="dark"] .model-speech,.speaking-task{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .grammar-check{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .difficulty-tabs{background:#211d18;color:var(--ink)}
+[data-theme="dark"] .difficulty-tabs button{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .particle-beginner{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .particle-beginner>div{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .particle-sources{background:#211d18;color:var(--ink)}
+[data-theme="dark"] .particle-sources a{background:#1c1814;color:var(--ink)}
+[data-theme="dark"] .nhk-resources a{background:#211d18;color:var(--ink)}
+[data-theme="dark"] .nhk-resources a>span{background:#1a1612;color:var(--ink)}
+[data-theme="dark"] .nhk-lesson-list button{background:#241f1a;color:var(--ink)}
+[data-theme="dark"] .writing-result{background:#261d19;color:var(--ink)}
+[data-theme="dark"] .writing-result.good{background:#19201d;color:var(--ink)}
+[data-theme="dark"] .writing-result.close{background:#262019;color:var(--ink)}

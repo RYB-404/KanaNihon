@@ -62,7 +62,32 @@ JLPT_DRILLS.push(
   {id:"h8",level:"N4",difficulty:"Sulit",skill:"Membaca",prompt:"『参加する方は木曜日までに受付で名前を書いてください。当日は筆記用具だけ持ってきてください。』Apa yang benar?",choices:["Daftar setelah Kamis","Tulis nama di resepsionis paling lambat Kamis","Bawa makanan","Tidak perlu mendaftar"],answer:"Tulis nama di resepsionis paling lambat Kamis",explanation:"木曜日までに menunjukkan tenggat, 受付で menunjukkan tempat melakukan pendaftaran."}
 );
 
-export const SPEAKING_PROMPTS = [
+
+// === EXPANDED READING (+4) ===
+READING_LESSONS.push(
+  {id:"cafe",level:"N5",kind:"Pesan",title:"Di kafe kecil",canDo:"Memahami pesanan sederhana",text:"コーヒーを一つと、サラダを一つお願いします。",reading:"Koohii o hitotsu to, sarada o hitotsu onegaishimasu.",meaning:"Saya pesan satu kopi dan satu salad.",vocabulary:[{word:"コーヒー",reading:"こーひー",meaning:"kopi"},{word:"サラダ",reading:"さらだ",meaning:"salad"}],question:"Apa yang dipesan selain kopi?",choices:["K","o","p","i"," ","d","a","n"," ","s","a","l","a","d"],answer:"Kopi dan salad dipesan.",explanation:"Kopi dan salad dipesan."},
+  {id:"bus",level:"N5",kind:"Di halte",title:"Menunggu bus",canDo:"Memahami arah dan waktu",text:"バスは三時に来ます。駅の前で待ちましょう。",reading:"Basu wa sanji ni kimasu. Eki no mae de machimashou.",meaning:"Bus datang pukul tiga. Mari menunggu di depan stasiun.",vocabulary:[{word:"三時",reading:"さんじ",meaning:"pukul tiga"},{word:"前",reading:"まえ",meaning:"depan"}],question:"Di mana menunggu bus?",choices:["D","e","p","a","n"," ","s","t","a","s","i","u","n"],answer:"Di depan stasiun.",explanation:"Di depan stasiun."},
+  {id:"library",level:"N4",kind:"Di perpustakaan",title:"Meminjam buku",canDo:"Memahami aturan peminjaman",text:"図書館は九時から六時までです。本は一週間借りられます。",reading:"Toshokan wa kuji kara rokuji made desu. Hon wa isshuukan kariraremasu.",meaning:"Perpustakaan buka pukul 9-18. Buku bisa dipinjam satu minggu.",vocabulary:[{word:"九時",reading:"くじ",meaning:"pukul 9"},{word:"一週間",reading:"いっしゅうかん",meaning:"satu minggu"}],question:"Berapa lama buku bisa dipinjam?",choices:["S","a","t","u"," ","m","i","n","g","g","u"],answer:"Buku bisa dipinjam seminggu.",explanation:"Buku bisa dipinjam seminggu."},
+  {id:"sick",level:"N4",kind:"Izin sakit",title:"Menjelaskan kondisi",canDo:"Memahami pesan singkat",text:"今日は熱があるので、学校を休みます。",reading:"Kyou wa netsu ga aru node, gakkou o yasumimasu.",meaning:"Hari ini saya demam, jadi libur sekolah.",vocabulary:[{word:"熱",reading:"ねつ",meaning:"demam"},{word:"休む",reading:"やすむ",meaning:"istirahat"}],question:"Kenapa tidak ke sekolah?",choices:["K","a","r","e","n","a"," ","d","e","m","a","m"],answer:"Karena demam.",explanation:"Karena demam."}
+);
+
+
+// === EXPANDED JLPT DRILLS (+12) ===
+JLPT_DRILLS.push(
+  {id:"v5",level:"N5",skill:"Kosakata",prompt:"context:"「図書館」の読み方はどれですか。",",audio:"Kosakata",Nonechoices:["としょかん","ずしょかん","としょこう","ずしょこう"],answer:"としょかん",explanation:"図書館 dibaca toshokan."},
+  {id:"v6",level:"N4",skill:"Kosakata",prompt:"context:"「料理」の意味に近いものは？",",audio:"Kosakata",Nonechoices:["作り方","食べ物","勉強","旅行"],answer:"作り方",explanation:"料理 berarti memasak/masakan."},
+  {id:"g7",level:"N4",skill:"Bunpou",prompt:"context:"私は毎日日本語を（　）います。",",audio:"Bunpou",Nonechoices:["勉強","勉強し","勉強する","勉強して"],answer:"勉強",explanation:"べんきょうしている = sedang belajar."},
+  {id:"g8",level:"N4",skill:"Bunpou",prompt:"context:"この本は（　）読めます。",",audio:"Bunpou",Nonechoices:["が","を","に","で"],answer:"が",explanation:"Kemampuan ditandai が."},
+  {id:"s3",level:"N5",skill:"Susun kalimat",prompt:"context:"Susun kalimat yang benar.",",audio:"Susun kalimat",Nonechoices:["④③①","①③④","④①③","③①④"],answer:"④③①",explanation:"私は学生です。"},
+  {id:"s4",level:"N4",skill:"Susun kalimat",prompt:"context:"Susun kalimat yang benar.",",audio:"Susun kalimat",Nonechoices:["②①③④","①②③④","③①②④","④③①"],answer:"②①③④",explanation:"朝ご飯を食べて、学校へ行きます。"},
+  {id:"t3",level:"N5",skill:"Membaca",prompt:"context:"『水を飲みます。』Artinya?",",audio:"Membaca",Nonechoices:["Minum air","Makan ikan","Baca buku","Tidur"],answer:"Minum air",explanation:"水を飲む = minum air."},
+  {id:"t4",level:"N4",skill:"Membaca",prompt:"context:"『来週、試験があります。』Kapan ujian?",",audio:"Membaca",Nonechoices:["Minggu depan","Hari ini","Besok","Kemarin"],answer:"Minggu depan",explanation:"来週 = minggu depan."},
+  {id:"l3",level:"N5",difficulty:"あさ、パンを食べました。",skill:"Listening",prompt:"context:"Dengarkan lalu pilih.",",audio:"Listening",Nonechoices:["Pagi makan roti","Siang minum teh","Malam baca buku","Sore pergi sekolah"],answer:"Pagi makan roti",explanation:"あさ= pagi, パン= roti."},
+  {id:"l4",level:"N4",difficulty:"天気がいいので、公園へ行きます。",skill:"Listening",prompt:"context:"Dengarkan alasan.",",audio:"Listening",Nonechoices:["Karena cuaca bagus pergi taman","Karena hujan di rumah","Karena sakit di klinik","Karena sibuk di kantor"],answer:"Karena cuaca bagus pergi taman",explanation:"天気がいい = cuaca bagus."},
+  {id:"e7",level:"N5",difficulty:"Mudah",skill:"Bunpou",prompt:"context:"「お茶を（　）ください。」",",audio:"Bunpou",Nonechoices:["飲んで","飲みて","飲むて","飲みた"],answer:"飲んで",explanation:"Permintaan memakai て+ください."},
+  {id:"m9",level:"N4",difficulty:"Sedang",skill:"Bunpou",prompt:"context:"日本へ（　）ために、貯金しています。",",audio:"Bunpou",Nonechoices:["行く","行き","行って","行きます"],answer:"行く",explanation:"V kamus + ために = tujuan."}
+);
+ = [
   {id:"intro",level:"N5",title:"Perkenalan 20 detik",model:"はじめまして。アリです。インドネシアから来ました。日本語を勉強しています。どうぞよろしくお願いします。",task:"Ganti nama, asal, dan kegiatan dengan informasi tentang dirimu.",checks:["Nama terdengar jelas","Gunakan 〜から来ました","Akhiri dengan よろしくお願いします"]},
   {id:"routine",level:"N5",title:"Rutinitas pagi",model:"毎朝六時に起きます。七時に朝ご飯を食べて、八時に学校へ行きます。",task:"Ceritakan tiga kegiatan pagimu dengan waktu.",checks:["Gunakan に untuk waktu","Urutkan dengan bentuk て","Ucapkan angka dengan jelas"]},
   {id:"order",level:"N5",title:"Pesan makanan",model:"すみません。ラーメンを一つと、水をお願いします。",task:"Pesan satu makanan dan satu minuman.",checks:["Awali dengan すみません","Pakai を dan と","Akhiri dengan お願いします"]},
