@@ -647,7 +647,6 @@ export default function Home() {
             <button className={view === "latih" ? "selected" : ""} onClick={() => startLatih()}><span>速</span><i>Latih cepat</i></button>
             <button className={view === "nhk" ? "selected" : ""} onClick={() => setView("nhk")}><span>放</span><i>Pusat NHK</i></button>
             <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
-            <button className={script === "katakana" ? "selected" : ""} onClick={() => switchScript("katakana")}><span>ア</span> Katakana</button>
           </div>
           {(view === "belajar" || view === "latihan") && <div className="script-switch compact" aria-label="Pilih jenis huruf">
             <button className={script === "hiragana" ? "selected" : ""} onClick={() => switchScript("hiragana")}><span>あ</span> Hiragana</button>
