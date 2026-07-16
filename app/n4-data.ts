@@ -74,20 +74,21 @@ READING_LESSONS.push(
 
 // === EXPANDED JLPT DRILLS (+12) ===
 JLPT_DRILLS.push(
-  {id:"v5",level:"N5",skill:"Kosakata",prompt:"context:"「図書館」の読み方はどれですか。",",audio:"Kosakata",Nonechoices:["としょかん","ずしょかん","としょこう","ずしょこう"],answer:"としょかん",explanation:"図書館 dibaca toshokan."},
-  {id:"v6",level:"N4",skill:"Kosakata",prompt:"context:"「料理」の意味に近いものは？",",audio:"Kosakata",Nonechoices:["作り方","食べ物","勉強","旅行"],answer:"作り方",explanation:"料理 berarti memasak/masakan."},
-  {id:"g7",level:"N4",skill:"Bunpou",prompt:"context:"私は毎日日本語を（　）います。",",audio:"Bunpou",Nonechoices:["勉強","勉強し","勉強する","勉強して"],answer:"勉強",explanation:"べんきょうしている = sedang belajar."},
-  {id:"g8",level:"N4",skill:"Bunpou",prompt:"context:"この本は（　）読めます。",",audio:"Bunpou",Nonechoices:["が","を","に","で"],answer:"が",explanation:"Kemampuan ditandai が."},
-  {id:"s3",level:"N5",skill:"Susun kalimat",prompt:"context:"Susun kalimat yang benar.",",audio:"Susun kalimat",Nonechoices:["④③①","①③④","④①③","③①④"],answer:"④③①",explanation:"私は学生です。"},
-  {id:"s4",level:"N4",skill:"Susun kalimat",prompt:"context:"Susun kalimat yang benar.",",audio:"Susun kalimat",Nonechoices:["②①③④","①②③④","③①②④","④③①"],answer:"②①③④",explanation:"朝ご飯を食べて、学校へ行きます。"},
-  {id:"t3",level:"N5",skill:"Membaca",prompt:"context:"『水を飲みます。』Artinya?",",audio:"Membaca",Nonechoices:["Minum air","Makan ikan","Baca buku","Tidur"],answer:"Minum air",explanation:"水を飲む = minum air."},
-  {id:"t4",level:"N4",skill:"Membaca",prompt:"context:"『来週、試験があります。』Kapan ujian?",",audio:"Membaca",Nonechoices:["Minggu depan","Hari ini","Besok","Kemarin"],answer:"Minggu depan",explanation:"来週 = minggu depan."},
-  {id:"l3",level:"N5",difficulty:"あさ、パンを食べました。",skill:"Listening",prompt:"context:"Dengarkan lalu pilih.",",audio:"Listening",Nonechoices:["Pagi makan roti","Siang minum teh","Malam baca buku","Sore pergi sekolah"],answer:"Pagi makan roti",explanation:"あさ= pagi, パン= roti."},
-  {id:"l4",level:"N4",difficulty:"天気がいいので、公園へ行きます。",skill:"Listening",prompt:"context:"Dengarkan alasan.",",audio:"Listening",Nonechoices:["Karena cuaca bagus pergi taman","Karena hujan di rumah","Karena sakit di klinik","Karena sibuk di kantor"],answer:"Karena cuaca bagus pergi taman",explanation:"天気がいい = cuaca bagus."},
-  {id:"e7",level:"N5",difficulty:"Mudah",skill:"Bunpou",prompt:"context:"「お茶を（　）ください。」",",audio:"Bunpou",Nonechoices:["飲んで","飲みて","飲むて","飲みた"],answer:"飲んで",explanation:"Permintaan memakai て+ください."},
-  {id:"m9",level:"N4",difficulty:"Sedang",skill:"Bunpou",prompt:"context:"日本へ（　）ために、貯金しています。",",audio:"Bunpou",Nonechoices:["行く","行き","行って","行きます"],answer:"行く",explanation:"V kamus + ために = tujuan."}
+  {id:"v5",level:"N5",skill:"Kosakata",prompt:"「図書館」の読み方はどれですか。",audio:"Kosakata",choices:["としょかん","ずしょかん","としょこう","ずしょこう"],answer:"としょかん",explanation:"図書館 dibaca toshokan."},
+  {id:"v6",level:"N4",skill:"Kosakata",prompt:"「料理」の意味に近いものは？",audio:"Kosakata",choices:["作り方","食べ物","勉強","旅行"],answer:"作り方",explanation:"料理 berarti memasak/masakan."},
+  {id:"g7",level:"N4",skill:"Bunpou",prompt:"私は毎日日本語を（　）います。",audio:"Bunpou",choices:["勉強","勉強し","勉強する","勉強して"],answer:"勉強",explanation:"べんきょうしている = sedang belajar."},
+  {id:"g8",level:"N4",skill:"Bunpou",prompt:"この本は（　）読めます。",audio:"Bunpou",choices:["が","を","に","で"],answer:"が",explanation:"Kemampuan ditandai が."},
+  {id:"s3",level:"N5",skill:"Susun kalimat",prompt:"Susun kalimat yang benar.",audio:"Susun kalimat",choices:["④③①","①③④","④①③","③①④"],answer:"④③①",explanation:"私は学生です。"},
+  {id:"s4",level:"N4",skill:"Susun kalimat",prompt:"Susun kalimat yang benar.",audio:"Susun kalimat",choices:["②①③④","①②③④","③①②④","④③①"],answer:"②①③④",explanation:"朝ご飯を食べて、学校へ行きます。"},
+  {id:"t3",level:"N5",skill:"Membaca",prompt:"『水を飲みます。』Artinya?",audio:"Membaca",choices:["Minum air","Makan ikan","Baca buku","Tidur"],answer:"Minum air",explanation:"水を飲む = minum air."},
+  {id:"t4",level:"N4",skill:"Membaca",prompt:"『来週、試験があります。』Kapan ujian?",audio:"Membaca",choices:["Minggu depan","Hari ini","Besok","Kemarin"],answer:"Minggu depan",explanation:"来週 = minggu depan."},
+  {id:"l3",level:"N5",difficulty:"あさ、パンを食べました。",skill:"Listening",prompt:"Dengarkan lalu pilih.",audio:"Listening",choices:["Pagi makan roti","Siang minum teh","Malam baca buku","Sore pergi sekolah"],answer:"Pagi makan roti",explanation:"あさ= pagi, パン= roti."},
+  {id:"l4",level:"N4",difficulty:"天気がいいので、公園へ行きます。",skill:"Listening",prompt:"Dengarkan alasan.",audio:"Listening",choices:["Karena cuaca bagus pergi taman","Karena hujan di rumah","Karena sakit di klinik","Karena sibuk di kantor"],answer:"Karena cuaca bagus pergi taman",explanation:"天気がいい = cuaca bagus."},
+  {id:"e7",level:"N5",difficulty:"Mudah",skill:"Bunpou",prompt:"「お茶を（　）ください。」",audio:"Bunpou",choices:["飲んで","飲みて","飲むて","飲みた"],answer:"飲んで",explanation:"Permintaan memakai て+ください."},
+  {id:"m9",level:"N4",difficulty:"Sedang",skill:"Bunpou",prompt:"日本へ（　）ために、貯金しています。",audio:"Bunpou",choices:["行く","行き","行って","行きます"],answer:"行く",explanation:"V kamus + ために = tujuan."}
 );
- = [
+
+export const SPEAKING_PROMPTS = [
   {id:"intro",level:"N5",title:"Perkenalan 20 detik",model:"はじめまして。アリです。インドネシアから来ました。日本語を勉強しています。どうぞよろしくお願いします。",task:"Ganti nama, asal, dan kegiatan dengan informasi tentang dirimu.",checks:["Nama terdengar jelas","Gunakan 〜から来ました","Akhiri dengan よろしくお願いします"]},
   {id:"routine",level:"N5",title:"Rutinitas pagi",model:"毎朝六時に起きます。七時に朝ご飯を食べて、八時に学校へ行きます。",task:"Ceritakan tiga kegiatan pagimu dengan waktu.",checks:["Gunakan に untuk waktu","Urutkan dengan bentuk て","Ucapkan angka dengan jelas"]},
   {id:"order",level:"N5",title:"Pesan makanan",model:"すみません。ラーメンを一つと、水をお願いします。",task:"Pesan satu makanan dan satu minuman.",checks:["Awali dengan すみません","Pakai を dan と","Akhiri dengan お願いします"]},

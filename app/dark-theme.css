@@ -50,7 +50,7 @@
 [data-theme="dark"] .dialogue-card{background:#241f1a;color:var(--ink)}
 [data-theme="dark"] .dialogue-lines p{background:#1a1612;color:var(--ink)}
 [data-theme="dark"] .particle-list button{background:#241f1a;color:var(--ink)}
-[data-theme="dark"] .particle-detai... [truncated]
+[data-theme="dark"] .particle-detail{background:#241f1a;border-color:#322b23;color:var(--ink)}
 .can-do-banner{background:#1a1612;color:var(--ink)}
 [data-theme="dark"] .mission-list button{background:#241f1a;color:var(--ink)}
 [data-theme="dark"] .mission-card{background:#241f1a;color:var(--ink)}
