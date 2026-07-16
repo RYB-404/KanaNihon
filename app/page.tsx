@@ -949,7 +949,7 @@ export default function Home() {
                         <button className="ingat-sound" onClick={()=>speak(target)} aria-label="Dengar">{playIcon(kanaAudioText(target))}</button>
                         {ingatMode === "ketik" ? (
                           <div className="ingat-input-wrap">
-                            <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk==="right"} placeholder={latihDictOk==="wrong" ? "Coba lagi..." : "Ketik romaji lalu Enter"} onChange={(e)=>setLatihDict(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim() && latihDictOk!=="right") ingatAnswer(latihDict); }} />
+                            <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk==="right"} placeholder={latihDictOk==="wrong" ? "Coba lagi..." : "Ketik romaji lalu Enter"} onChange={(e)=>{ if(latihDictOk==="wrong"){ setLatihDictOk(""); setIngatReveal(""); } setLatihDict(e.target.value); }} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim() && latihDictOk!=="right") ingatAnswer(latihDict); }} />
                             {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {ingatReveal}</span>}
                           </div>
                         ) : (
