@@ -186,6 +186,7 @@ export default function Home() {
   const [latihIndex, setLatihIndex] = useState(0);
   const [ingatDone, setIngatDone] = useState(0);
   const [ingatWrong, setIngatWrong] = useState<string[]>([]);
+  const [ingatReveal, setIngatReveal] = useState("");
   const [belajarTab, setBelajarTab] = useState<"pelajari" | "ingat">("pelajari");
   const [ingatMode, setIngatMode] = useState<"ketik" | "pilih">("ketik");
   const [ingatStage, setIngatStage] = useState<KanaSet>("basic");
@@ -373,11 +374,12 @@ export default function Home() {
     const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
     const ok = norm(choice) === norm(target.romaji);
     setLatihDictOk(ok ? "right" : "wrong");
+    if (!ok) { setIngatReveal(target.romaji); setIngatWrong((w) => [...w, target.char]); }
     bumpMastery(target.char, ok);
-    if (!ok) setIngatWrong((w) => [...w, target.char]);
     window.setTimeout(() => {
       setLatihDict("");
       setLatihDictOk("");
+      setIngatReveal("");
       if (latihIndex + 1 >= latihItems.length) {
         setIngatDone(latihItems.length);
       } else {
@@ -937,14 +939,14 @@ export default function Home() {
                         {ingatMode === "ketik" ? (
                           <div className="ingat-input-wrap">
                             <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk!==""} placeholder="Ketik romaji lalu Enter" onChange={(e)=>setLatihDict(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim()) ingatAnswer(latihDict); }} />
-                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {target.romaji}</span>}
+                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {ingatReveal}</span>}
                           </div>
                         ) : (
                           <div className="ingat-choices">
                             {shuffle([target.romaji, ...shuffle(kana.filter(k=>k.romaji!==target.romaji)).slice(0,3).map(k=>k.romaji)]).map((c,i)=>(
                               <button key={i} className="ingat-choice" disabled={latihDictOk!==""} onClick={()=>ingatAnswer(c)}>{c}</button>
                             ))}
-                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {target.romaji}</span>}
+                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {ingatReveal}</span>}
                           </div>
                         )}
                         {latihDictOk === "right" && <span className="ingat-ok">Benar! ✓</span>}
