@@ -348,13 +348,7 @@ export default function Home() {
   }
 
   function startIngat() {
-    const pool = kana.filter((k) => {
-      if (ingatStage === "basic") return k.set === "basic";
-      if (ingatStage === "dakuon") return k.set === "dakuon";
-      if (ingatStage === "handakuon") return k.set === "handakuon";
-      if (ingatStage === "contracted") return k.set === "contracted";
-      return true;
-    });
+    const pool = kanaCollections[ingatStage] || kana;
     const scored = pool.map((k) => ({
       k,
       fail: latihFails[k.char] || 0,
