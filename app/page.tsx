@@ -181,6 +181,32 @@ export default function Home() {
   const [latihTimer, setLatihTimer] = useState(0);
   const [latihDict, setLatihDict] = useState("");
   const [latihDictOk, setLatihDictOk] = useState<"" | "right" | "wrong">("");
+  const [latihMastery, setLatihMastery] = useState<Record<string, number>>({});
+  const [latihFails, setLatihFails] = useState<Record<string, number>>({});
+  const LATIH_KEY = "kananihon-latih";
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(LATIH_KEY) || "{}");
+      setLatihMastery(saved.mastery || {});
+      setLatihFails(saved.fails || {});
+    } catch {}
+  }, []);
+  function saveLatih(m: Record<string, number>, f: Record<string, number>) {
+    try { localStorage.setItem(LATIH_KEY, JSON.stringify({ mastery: m, fails: f })); } catch {}
+  }
+  function bumpMastery(char: string, ok: boolean) {
+    setLatihMastery((prev) => {
+      const cur = prev[char] || 0;
+      const next = ok ? Math.min(100, cur + 20) : Math.max(0, cur - 10);
+      const m = { ...prev, [char]: next };
+      setLatihFails((pf) => {
+        const nf = ok ? pf : { ...pf, [char]: (pf[char] || 0) + 1 };
+        saveLatih(m, nf);
+        return nf;
+      });
+      return m;
+    });
+  }
   const [nhkLessonIndex, setNhkLessonIndex] = useState(0);
   const [recording, setRecording] = useState(false);
   const [recordingUrl, setRecordingUrl] = useState("");
@@ -316,7 +342,13 @@ export default function Home() {
 
   function startLatih() {
     const pool = kana;
-    const items = shuffle(pool).slice(0, Math.min(8, pool.length));
+    const scored = pool.map((k) => ({
+      k,
+      fail: latihFails[k.char] || 0,
+      mastery: latihMastery[k.char] || 0,
+    }));
+    scored.sort((a, b) => b.fail - a.fail || a.mastery - b.mastery);
+    const items = scored.slice(0, Math.min(8, pool.length)).map((s) => s.k);
     setLatihItems(items);
     setLatihPicks([]);
     setLatihMatched([]);
@@ -343,8 +375,10 @@ export default function Home() {
       if (ok && pair) {
         setLatihMatched((m) => [...m, pair.char]);
         setLatihPicks([]);
+        bumpMastery(pair.char, true);
       } else {
         window.setTimeout(() => setLatihPicks([]), 600);
+        if (pair) bumpMastery(pair.char, false);
       }
     }
   }
@@ -357,7 +391,10 @@ export default function Home() {
     if (norm(latihDict) === norm(target.romaji)) {
       setLatihMatched((m) => m.includes(target.char) ? m : [...m, target.char]);
       setLatihDict("");
+      bumpMastery(target.char, true);
       window.setTimeout(() => setLatihDictOk(""), 900);
+    } else {
+      bumpMastery(target.char, false);
     }
   }
 
@@ -898,6 +935,10 @@ export default function Home() {
 
           {view === "latih" && <div className="latih-view">
             <div className="section-title"><div><p>LATIH CEPAT · kana.pro gaya</p><h2>Match &amp; dictation</h2></div><span>{latihItems.length} kana · {latihMatched.length} cocok · ⏱ {latihTimer}s</span></div>
+            <div className="latih-stats">
+              <span>Mastery rata²: {latihItems.length ? Math.round(latihItems.reduce((s, k) => s + (latihMastery[k.char] || 0), 0) / latihItems.length) : 0}%</span>
+              {Object.entries(latihFails).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([c, n]) => <span key={c} className="fail-tag">sering salah: {c} ({n}×)</span>)}
+            </div>
             <div className="level-tabs" aria-label="Pilih mode latih">
               <button className={latihMode === "match" ? "selected" : ""} onClick={() => { setLatihMode("match"); setLatihMatched([]); setLatihPicks([]); }}>Match</button>
               <button className={latihMode === "dictation" ? "selected" : ""} onClick={() => { setLatihMode("dictation"); setLatihMatched([]); setLatihDict(""); setLatihDictOk(""); }}>Dictation</button>
@@ -907,7 +948,7 @@ export default function Home() {
               <div className="result-card"><span className="result-seal">済</span><p>SELESAI</p><h2>{latihItems.length}/{latihItems.length} cocok</h2><p>Kerja bagus! Ulangi dengan kocok baru untuk makin lancar.</p><button className="primary" onClick={startLatih}>Kocok lagi</button><button className="outline" onClick={() => setView("belajar")}>Kembali ke Kana</button></div>
             ) : latihMode === "match" ? (
               <div className="match-grid">
-                {latihItems.map((k) => <button key={`l-${k.char}`} className={`match-cell ${latihMatched.includes(k.char) ? "done" : ""} ${latihPicks.includes(k.char) ? "picked" : ""}`} onClick={() => pickLatih(k.char)} disabled={latihMatched.includes(k.char)}>{k.char}</button>)}
+                {latihItems.map((k) => <button key={`l-${k.char}`} className={`match-cell ${latihMatched.includes(k.char) ? "done" : ""} ${latihPicks.includes(k.char) ? "picked" : ""}`} onClick={() => pickLatih(k.char)} disabled={latihMatched.includes(k.char)}>{k.char}<span className="mastery-bar" style={{ width: `${latihMastery[k.char] || 0}%` }} /></button>)}
                 {latihItems.map((k) => <button key={`r-${k.romaji}`} className={`match-cell romaji ${latihMatched.includes(k.char) ? "done" : ""} ${latihPicks.includes(k.romaji) ? "picked" : ""}`} onClick={() => pickLatih(k.romaji)} disabled={latihMatched.includes(k.char)}>{k.romaji}</button>)}
               </div>
             ) : (

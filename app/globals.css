@@ -122,3 +122,10 @@ button.sound-round,.kanji-word button,.particle-use button,.dialogue-lines butto
 
 @media (max-width:900px){.kana-family-rows{grid-template-columns:1fr}.kana-set-tabs{display:flex;overflow-x:auto}.kana-set-tabs button{flex:0 0 138px}.kana-family-heading{align-items:flex-start;flex-direction:column;gap:3px}}
 @media (max-width:620px){.kana-family-rows>div,.kana-family-guide.contracted .kana-family-rows>div{grid-template-columns:52px 1fr 14px 1.45fr;padding:8px}.kana-family-rows span,.kana-family-rows b{font-size:12px}.writing-result{grid-template-columns:1fr}.writing-result>strong{text-align:left}}
+
+/* latih view: kana.pro-style stats */
+.latih-stats{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 14px;font-size:12px;color:var(--muted)}
+.latih-stats .fail-tag{background:#fff3f2;border:1px solid #f0c5c2;color:#c0392b;border-radius:20px;padding:3px 10px}
+.match-cell{position:relative}
+.match-cell .mastery-bar{position:absolute;left:0;bottom:0;height:3px;background:#668e67;border-radius:0 0 9px 9px}
+[data-theme="dark"] .latih-stats .fail-tag{background:#2a1d1d;border-color:#5c3a38;color:#ff9b91}

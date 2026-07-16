@@ -113,3 +113,6 @@
 [data-theme="dark"] .writing-result{background:#261d19;color:var(--ink)}
 [data-theme="dark"] .writing-result.good{background:#19201d;color:var(--ink)}
 [data-theme="dark"] .writing-result.close{background:#262019;color:var(--ink)}
+.latih-stats{color:var(--muted)}
+.latih-stats .fail-tag{background:#2a1d1d;border-color:#5c3a38;color:#ff9b91}
+.match-cell .mastery-bar{background:#7fae7f}
