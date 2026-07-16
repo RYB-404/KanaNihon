@@ -188,6 +188,12 @@ export default function Home() {
   const [ingatWrong, setIngatWrong] = useState<string[]>([]);
   const [ingatReveal, setIngatReveal] = useState("");
   const [belajarTab, setBelajarTab] = useState<"pelajari" | "ingat">("pelajari");
+  useEffect(() => {
+    if (belajarTab === "ingat" && latihItems.length > 0 && latihIndex < latihItems.length) {
+      const t = latihItems[latihIndex];
+      if (t) speak(t);
+    }
+  }, [latihIndex, belajarTab, latihItems]);
   const [ingatMode, setIngatMode] = useState<"ketik" | "pilih">("ketik");
   const [ingatStage, setIngatStage] = useState<KanaSet>("basic");
   const INGAT_KEY = "kananihon-ingat";
@@ -370,22 +376,28 @@ export default function Home() {
 
   function ingatAnswer(choice: string) {
     const target = latihItems[latihIndex];
-    if (!target) return;
+    if (!target || latihDictOk === "wrong") return;
     const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
     const ok = norm(choice) === norm(target.romaji);
-    setLatihDictOk(ok ? "right" : "wrong");
-    if (!ok) { setIngatReveal(target.romaji); setIngatWrong((w) => [...w, target.char]); }
-    bumpMastery(target.char, ok);
-    window.setTimeout(() => {
-      setLatihDict("");
-      setLatihDictOk("");
-      setIngatReveal("");
-      if (latihIndex + 1 >= latihItems.length) {
-        setIngatDone(latihItems.length);
-      } else {
-        setLatihIndex((i) => i + 1);
-      }
-    }, ok ? 500 : 1100);
+    if (ok) {
+      setLatihDictOk("right");
+      bumpMastery(target.char, true);
+      window.setTimeout(() => {
+        setLatihDict("");
+        setLatihDictOk("");
+        if (latihIndex + 1 >= latihItems.length) {
+          setIngatDone(latihItems.length);
+        } else {
+          setLatihIndex((i) => i + 1);
+        }
+      }, 450);
+    } else {
+      setLatihDictOk("wrong");
+      setIngatReveal(target.romaji);
+      bumpMastery(target.char, false);
+      setIngatWrong((w) => w.includes(target.char) ? w : [...w, target.char]);
+      window.setTimeout(() => { setLatihDict(""); }, 600);
+    }
   }
 
   function pickLatih(char: string) {
@@ -681,7 +693,6 @@ export default function Home() {
             <div className="progress-track"><i style={{ width: `${overallPercent}%` }} /></div>
             <small>{learningPoints} aktivitas diselesaikan</small>
           </div>
-          <button className="quiz-cta" onClick={startQuiz}><span>Review kana cepat</span><b>→</b></button>
           <button className={`audio-check ${audioStatus}`} onClick={() => speakJapanese("こんにちは。日本語の勉強を始めましょう。",.76)}><span>{audioStatus === "error" ? "!" : playIcon("こんにちは。日本語の勉強を始めましょう。",.76)}</span><i>{playingAudioKey===audioKey("こんにちは。日本語の勉強を始めましょう。",.76)&&audioStatus === "playing" ? "Tekan lagi untuk berhenti" : audioStatus === "error" ? "Suara tidak tersedia" : "Tes suara Jepang"}</i></button>
           <p className="free-note">✓ Gratis · Tanpa akun · Progres tersimpan</p>
         </aside>
@@ -934,17 +945,17 @@ export default function Home() {
                       <div className="ingat-quiz">
                         <div className="ingat-progress"><i style={{width:`${progress}%`}} /></div>
                         <div className="ingat-count">{latihIndex + 1} / {latihItems.length}</div>
-                        <div className="ingat-symbol">{target.char}</div>
+                        <div className={`ingat-symbol ${latihDictOk}`}>{target.char}</div>
                         <button className="ingat-sound" onClick={()=>speak(target)} aria-label="Dengar">{playIcon(kanaAudioText(target))}</button>
                         {ingatMode === "ketik" ? (
                           <div className="ingat-input-wrap">
-                            <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk!==""} placeholder="Ketik romaji lalu Enter" onChange={(e)=>setLatihDict(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim()) ingatAnswer(latihDict); }} />
+                            <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk==="right"} placeholder={latihDictOk==="wrong" ? "Coba lagi..." : "Ketik romaji lalu Enter"} onChange={(e)=>setLatihDict(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim() && latihDictOk!=="right") ingatAnswer(latihDict); }} />
                             {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {ingatReveal}</span>}
                           </div>
                         ) : (
                           <div className="ingat-choices">
                             {shuffle([target.romaji, ...shuffle(kana.filter(k=>k.romaji!==target.romaji)).slice(0,3).map(k=>k.romaji)]).map((c,i)=>(
-                              <button key={i} className="ingat-choice" disabled={latihDictOk!==""} onClick={()=>ingatAnswer(c)}>{c}</button>
+                              <button key={i} className={`ingat-choice ${latihDictOk==="wrong"&&c===ingatReveal?"right":""} ${latihDictOk==="wrong"&&c!==ingatReveal?"wrong":""}`} disabled={latihDictOk==="right"} onClick={()=>{ if(latihDictOk!=="right") ingatAnswer(c); }}>{c}</button>
                             ))}
                             {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {ingatReveal}</span>}
                           </div>

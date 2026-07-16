@@ -160,3 +160,11 @@ button.sound-round,.kanji-word button,.particle-use button,.dialogue-lines butto
 .ingat-result,.ingat-empty{text-align:center;padding:50px 0}
 .ingat-result h3{font-family:var(--font-jp);font-size:28px;margin:0 0 10px}
 .ingat-wrong{color:var(--red);font-weight:700}
+
+/* Ingat kata: kana.pro exact feedback */
+.ingat-symbol.right{color:#52936a}
+.ingat-symbol.wrong{color:#d84b40}
+.ingat-choice.wrong{border-color:#d84b40;background:#fff0ed;color:#d84b40}
+.ingat-choice.right{border-color:#52936a;background:#edf7f0;color:#52936a}
+.dict-input.wrong{border-color:#d84b40;background:#fff0ed;color:#d84b40}
+.dict-input.right{border-color:#52936a;background:#edf7f0;color:#52936a}
