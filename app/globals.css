@@ -129,3 +129,34 @@ button.sound-round,.kanji-word button,.particle-use button,.dialogue-lines butto
 .match-cell{position:relative}
 .match-cell .mastery-bar{position:absolute;left:0;bottom:0;height:3px;background:#668e67;border-radius:0 0 9px 9px}
 [data-theme="dark"] .latih-stats .fail-tag{background:#2a1d1d;border-color:#5c3a38;color:#ff9b91}
+
+/* belajar tabs + Ingat kata (kana.pro style) */
+.belajar-tabs{display:flex;gap:8px;margin:0 0 18px}
+.belajar-tabs button{padding:9px 16px;border:1px solid var(--line);background:var(--white);border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;color:var(--muted)}
+.belajar-tabs button.selected{border-color:var(--red);color:var(--red);background:#fff}
+.ingat-view{max-width:560px;margin:10px auto 0}
+.ingat-controls{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center;margin-bottom:22px}
+.ingat-stages{display:flex;gap:6px;flex-wrap:wrap}
+.ingat-stages button{padding:6px 11px;border:1px solid var(--line);background:var(--white);border-radius:8px;font-size:12px;cursor:pointer;font-weight:700;color:var(--muted)}
+.ingat-stages button.selected{border-color:var(--red);color:var(--red)}
+.ingat-modes{display:flex;gap:4px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.ingat-modes button{padding:6px 14px;border:none;background:var(--white);font-weight:700;font-size:12px;cursor:pointer;color:var(--muted)}
+.ingat-modes button.selected{background:var(--red);color:#fff}
+.ingat-quiz{text-align:center;padding:30px 0}
+.ingat-progress{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.ingat-progress i{display:block;height:100%;background:var(--red);transition:.3s}
+.ingat-count{font-size:12px;color:var(--muted);margin-bottom:14px}
+.ingat-symbol{font-family:var(--font-jp);font-size:120px;line-height:1;color:var(--ink);margin:10px 0}
+.ingat-sound{display:block;margin:0 auto 18px;width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--white);cursor:pointer;font-size:20px}
+.ingat-input-wrap{margin-top:8px}
+.dict-input.ingat-input-wrap input,.ingat-input-wrap input{width:100%;max-width:300px;margin:0 auto;padding:14px 16px;font-size:18px;border:2px solid var(--line);border-radius:12px;text-align:center;font-family:var(--font-sans)}
+.dict-input.right{border-color:#52936a;background:#edf7f0}
+.dict-input.wrong{border-color:#d84b40;background:#fff0ed}
+.ingat-reveal{display:block;margin-top:10px;color:var(--red);font-weight:700;font-size:14px}
+.ingat-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:320px;margin:0 auto}
+.ingat-choice{padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--white);font-size:16px;font-weight:700;cursor:pointer;color:var(--ink)}
+.ingat-choice:hover{border-color:var(--red)}
+.ingat-ok{display:block;margin-top:12px;color:#52936a;font-weight:700}
+.ingat-result,.ingat-empty{text-align:center;padding:50px 0}
+.ingat-result h3{font-family:var(--font-jp);font-size:28px;margin:0 0 10px}
+.ingat-wrong{color:var(--red);font-weight:700}

@@ -183,6 +183,13 @@ export default function Home() {
   const [latihDictOk, setLatihDictOk] = useState<"" | "right" | "wrong">("");
   const [latihMastery, setLatihMastery] = useState<Record<string, number>>({});
   const [latihFails, setLatihFails] = useState<Record<string, number>>({});
+  const [latihIndex, setLatihIndex] = useState(0);
+  const [ingatDone, setIngatDone] = useState(0);
+  const [ingatWrong, setIngatWrong] = useState<string[]>([]);
+  const [belajarTab, setBelajarTab] = useState<"pelajari" | "ingat">("pelajari");
+  const [ingatMode, setIngatMode] = useState<"ketik" | "pilih">("ketik");
+  const [ingatStage, setIngatStage] = useState<KanaSet>("basic");
+  const INGAT_KEY = "kananihon-ingat";
   const LATIH_KEY = "kananihon-latih";
   useEffect(() => {
     try {
@@ -340,28 +347,49 @@ export default function Home() {
     setAnswerState("idle");
   }
 
-  function startLatih() {
-    const pool = kana;
+  function startIngat() {
+    const pool = kana.filter((k) => {
+      if (ingatStage === "basic") return k.set === "basic";
+      if (ingatStage === "dakuon") return k.set === "dakuon";
+      if (ingatStage === "handakuon") return k.set === "handakuon";
+      if (ingatStage === "contracted") return k.set === "contracted";
+      return true;
+    });
     const scored = pool.map((k) => ({
       k,
       fail: latihFails[k.char] || 0,
       mastery: latihMastery[k.char] || 0,
     }));
     scored.sort((a, b) => b.fail - a.fail || a.mastery - b.mastery);
-    const items = scored.slice(0, Math.min(8, pool.length)).map((s) => s.k);
+    const items = scored.slice(0, Math.min(10, pool.length)).map((s) => s.k);
     setLatihItems(items);
+    setLatihIndex(0);
     setLatihPicks([]);
     setLatihMatched([]);
     setLatihDict("");
     setLatihDictOk("");
-    setLatihTimer(60);
-    setView("latih");
-    let t = 60;
-    const iv = window.setInterval(() => {
-      t -= 1;
-      setLatihTimer(t);
-      if (t <= 0) { window.clearInterval(iv); setLatihTimer(0); }
-    }, 1000);
+    setIngatDone(0);
+    setIngatWrong([]);
+    setBelajarTab("ingat");
+  }
+
+  function ingatAnswer(choice: string) {
+    const target = latihItems[latihIndex];
+    if (!target) return;
+    const norm = (s: string) => s.replace(/\s+/g, "").toLowerCase();
+    const ok = norm(choice) === norm(target.romaji);
+    setLatihDictOk(ok ? "right" : "wrong");
+    bumpMastery(target.char, ok);
+    if (!ok) setIngatWrong((w) => [...w, target.char]);
+    window.setTimeout(() => {
+      setLatihDict("");
+      setLatihDictOk("");
+      if (latihIndex + 1 >= latihItems.length) {
+        setIngatDone(latihItems.length);
+      } else {
+        setLatihIndex((i) => i + 1);
+      }
+    }, ok ? 500 : 1100);
   }
 
   function pickLatih(char: string) {
@@ -644,7 +672,7 @@ export default function Home() {
             <button className={view === "studio" ? "selected" : ""} onClick={() => setView("studio")}><span>声</span><i>Studio bicara</i></button>
             <button className={view === "review" ? "selected" : ""} onClick={() => setView("review")}><span>復</span><i>Review pintar</i></button>
             <button className={view === "ujian" ? "selected" : ""} onClick={() => setView("ujian")}><span>試</span><i>Simulasi JLPT</i></button>
-            <button className={view === "latih" ? "selected" : ""} onClick={() => startLatih()}><span>速</span><i>Latih cepat</i></button>
+            <button className={view === "latih" ? "selected" : ""} onClick={() => startLatih()} style={{display:"none"}}><span>速</span><i>Latih cepat</i></button>
             <button className={view === "nhk" ? "selected" : ""} onClick={() => setView("nhk")}><span>放</span><i>Pusat NHK</i></button>
             <button className={view === "tanya" ? "selected" : ""} onClick={() => setView("tanya")}><span>?</span><i>Tanya & paham</i></button>
           </div>
@@ -826,6 +854,11 @@ export default function Home() {
               <div><p>MATERI LENGKAP</p><h2>{script === "hiragana" ? "Hiragana" : "Katakana"}</h2></div>
               <span>{kana.length} bentuk pada bagian ini</span>
             </div>
+            <div className="belajar-tabs" role="tablist" aria-label="Mode belajar">
+              <button role="tab" aria-selected={belajarTab==="pelajari"} className={belajarTab==="pelajari"?"selected":""} onClick={()=>setBelajarTab("pelajari")}>Pelajari</button>
+              <button role="tab" aria-selected={belajarTab==="ingat"} className={belajarTab==="ingat"?"selected":""} onClick={()=>{ if(latihItems.length===0) startIngat(); else setBelajarTab("ingat"); }}>Ingat kata</button>
+            </div>
+            {belajarTab === "pelajari" && <>
             <div className="kana-set-tabs" role="tablist" aria-label="Jenis bunyi kana">
               {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((set)=><button role="tab" aria-selected={kanaSet===set} className={kanaSet===set?"selected":""} key={set} onClick={()=>{setKanaSet(set);setSelected(0)}}><b>{KANA_SET_INFO[set].label}</b><span>{set === "basic" ? "あ" : set === "dakuon" ? "が" : set === "handakuon" ? "ぱ" : set === "contracted" ? "きゃ" : "っ"}</span></button>)}
             </div>
@@ -873,6 +906,60 @@ export default function Home() {
                 </div>
               </article>
             </div>
+            </>}
+            {belajarTab === "ingat" && (
+              <div className="ingat-view">
+                <div className="ingat-controls">
+                  <div className="ingat-stages" role="tablist" aria-label="Tahap">
+                    {(Object.keys(KANA_SET_INFO) as KanaSet[]).map((s)=>(
+                      <button key={s} role="tab" aria-selected={ingatStage===s} className={ingatStage===s?"selected":""} onClick={()=>{setIngatStage(s);startIngat();}}>{KANA_SET_INFO[s].label}</button>
+                    ))}
+                  </div>
+                  <div className="ingat-modes">
+                    <button className={ingatMode==="ketik"?"selected":""} onClick={()=>setIngatMode("ketik")}>Ketik</button>
+                    <button className={ingatMode==="pilih"?"selected":""} onClick={()=>setIngatMode("pilih")}>Pilih</button>
+                  </div>
+                </div>
+                {ingatDone > 0 && ingatDone >= latihItems.length ? (
+                  <div className="ingat-result">
+                    <h3>Selesai! 🎉</h3>
+                    <p>{latihItems.length - ingatWrong.length} / {latihItems.length} benar</p>
+                    {ingatWrong.length > 0 && <p className="ingat-wrong">Perlu latih: {ingatWrong.join(" ")}</p>}
+                    <button className="primary" onClick={()=>startIngat()}>Ulangi</button>
+                  </div>
+                ) : latihItems.length === 0 ? (
+                  <div className="ingat-empty"><button className="primary" onClick={()=>startIngat()}>Mulai Ingat kata</button></div>
+                ) : (
+                  (() => {
+                    const target = latihItems[latihIndex];
+                    if (!target) return null;
+                    const progress = Math.round((latihIndex / latihItems.length) * 100);
+                    return (
+                      <div className="ingat-quiz">
+                        <div className="ingat-progress"><i style={{width:`${progress}%`}} /></div>
+                        <div className="ingat-count">{latihIndex + 1} / {latihItems.length}</div>
+                        <div className="ingat-symbol">{target.char}</div>
+                        <button className="ingat-sound" onClick={()=>speak(target)} aria-label="Dengar">{playIcon(kanaAudioText(target))}</button>
+                        {ingatMode === "ketik" ? (
+                          <div className="ingat-input-wrap">
+                            <input className={`dict-input ${latihDictOk}`} autoFocus value={latihDict} disabled={latihDictOk!==""} placeholder="Ketik romaji lalu Enter" onChange={(e)=>setLatihDict(e.target.value)} onKeyDown={(e)=>{ if(e.key==="Enter" && latihDict.trim()) ingatAnswer(latihDict); }} />
+                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {target.romaji}</span>}
+                          </div>
+                        ) : (
+                          <div className="ingat-choices">
+                            {shuffle([target.romaji, ...shuffle(kana.filter(k=>k.romaji!==target.romaji)).slice(0,3).map(k=>k.romaji)]).map((c,i)=>(
+                              <button key={i} className="ingat-choice" disabled={latihDictOk!==""} onClick={()=>ingatAnswer(c)}>{c}</button>
+                            ))}
+                            {latihDictOk === "wrong" && <span className="ingat-reveal">Jawaban: {target.romaji}</span>}
+                          </div>
+                        )}
+                        {latihDictOk === "right" && <span className="ingat-ok">Benar! ✓</span>}
+                      </div>
+                    );
+                  })()
+                )}
+              </div>
+            )}
           </>}
 
           {view === "kuisgambar" && <div className="comic-quiz-view">
