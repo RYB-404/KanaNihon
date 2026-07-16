@@ -348,6 +348,26 @@ KANJI.push(
   {char:"青",meaning:"biru",onyomi:"セイ・ショウ",kunyomi:"あお",word:"青い",reading:"あおい",wordMeaning:"biru",level:"N5"},
   {char:"黒",meaning:"hitam",onyomi:"コク",kunyomi:"くろ",word:"黒い",reading:"くろい",wordMeaning:"hitam",level:"N5"},
 );
+// === EXPANDED KANJI N5 +17 ===
+KANJI.push(
+  {char:"時",kun:"とき",on:"ジ",meaning:"waktu",examples:["時計","時々","時間"]},
+  {char:"書",kun:"かく",on:"ショ",meaning:"menulis",examples:["書く","書類","図書館"]},
+  {char:"話",kun:"はなす",on:"ワ",meaning:"bicara",examples:["話す","電話","話し方"]},
+  {char:"読",kun:"よむ",on:"ドク",meaning:"membaca",examples:["読む","読書","音読"]},
+  {char:"聞",kun:"きく",on:"ブン",meaning:"mendengar",examples:["聞く","新聞","風聞"]},
+  {char:"買",kun:"かう",on:"バイ",meaning:"membeli",examples:["買う","買い物","購買"]},
+  {char:"売",kun:"うる",on:"バイ",meaning:"menjual",examples:["売る","売り場","販売"]},
+  {char:"国",kun:"くに",on:"コク",meaning:"negara",examples:["中国","日本国","国民"]},
+  {char:"母",kun:"はは",on:"ボ",meaning:"ibu",examples:["母親","母語","祖母"]},
+  {char:"父",kun:"ちち",on:"フ",meaning:"ayah",examples:["父親","父母","祖父"]},
+  {char:"兄",kun:"あに",on:"キョウ",meaning:"kakak laki",examples:["兄弟","兄貴","長兄"]},
+  {char:"姉",kun:"あね",on:"シ",meaning:"kakak perempuan",examples:["姉妹","姉貴","長姉"]},
+  {char:"弟",kun:"おとうと",on:"テイ",meaning:"adik laki",examples:["兄弟","弟子","弟分"]},
+  {char:"妹",kun:"いもうと",on:"マイ",meaning:"adik perempuan",examples:["姉妹","妹分","令妹"]},
+  {char:"犬",kun:"いぬ",on:"ケン",meaning:"anjing",examples:["犬","愛犬","番犬"]},
+  {char:"猫",kun:"ねこ",on:"ビョウ",meaning:"kucing",examples:["猫","黒猫","愛猫"]},
+  {char:"魚",kun:"さかな",on:"ギョ",meaning:"ikan",examples:["魚","魚屋","金魚"]},
+);
 
 export const LISTENING = [
   {id:"self",level:"Pemula",title:"Perkenalan diri",jp:"はじめまして。私はアユです。インドネシアから来ました。",romaji:"Hajimemashite. Watashi wa Ayu desu. Indonesia kara kimashita.",meaning:"Salam kenal. Saya Ayu. Saya berasal dari Indonesia.",question:"Ayu berasal dari mana?",answer:"Indonesia"},
